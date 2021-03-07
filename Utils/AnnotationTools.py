@@ -24,9 +24,16 @@ def annotation_horizon_line_on_image(_img, _y, _line_color, _line_thickness=4):
 def annotate_bounding_box_on_image(_img, _boxes, _specific_color, _with_index=False, _thickness=4):
     to_return_img = _img.copy()
     if len(_boxes) > 0:
-        for m_box in _boxes:
+        for m_box_index, m_box in enumerate(_boxes):
             cv2.rectangle(to_return_img, (m_box[0], m_box[1]), (m_box[2], m_box[3]), _specific_color,
                           thickness=_thickness)
+            if _with_index:
+                cv2.putText(to_return_img,
+                            f'{m_box_index}',
+                            (m_box[0] + 5, m_box[1] + 5),
+                            cv2.FONT_HERSHEY_SIMPLEX, 1,
+                            _specific_color
+                            )
     return to_return_img
 
 
