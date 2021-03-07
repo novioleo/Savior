@@ -53,3 +53,10 @@ class AlgorithmRuntimeException(AlgorithmOperatorException):
     算子运行时错误
     """
     MAJOR_CODE = 2
+
+
+class NetworkInputParameterException(AlgorithmRuntimeException):
+    """
+    网络入参异常
+    """
+    MIRROR_CODE = 11
