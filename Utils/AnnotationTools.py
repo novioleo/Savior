@@ -21,29 +21,29 @@ def annotation_horizon_line_on_image(_img, _y, _line_color, _line_thickness=4):
     return annotation_multi_horizon_line_on_image(_img, [_y], _line_color, _line_thickness)
 
 
-def annotate_bounding_box_on_image(_img, _boxes, _specific_color, _with_index=False, thickness=4):
+def annotate_bounding_box_on_image(_img, _boxes, _specific_color, _with_index=False, _thickness=4):
     to_return_img = _img.copy()
     if len(_boxes) > 0:
         for m_box in _boxes:
             cv2.rectangle(to_return_img, (m_box[0], m_box[1]), (m_box[2], m_box[3]), _specific_color,
-                          thickness=thickness)
+                          thickness=_thickness)
     return to_return_img
 
 
-def annotate_circle_on_image(_img, _points, _specific_color, _radius=8, _with_index=False, thickness=2):
+def annotate_circle_on_image(_img, _points, _specific_color, _radius=8, _with_index=False, _thickness=2):
     to_return_img = _img.copy()
     if len(_points) > 0:
         for m_point in _points:
-            cv2.circle(to_return_img, (m_point[0], m_point[1]), _radius, _specific_color, thickness=thickness)
+            cv2.circle(to_return_img, (m_point[0], m_point[1]), _radius, _specific_color, thickness=_thickness)
     return to_return_img
 
 
-def annotate_polygon_on_image(_img, _polygon, _specific_color, _with_index=False, _is_addweighted=True):
+def annotate_polygon_on_image(_img, _polygon, _specific_color, _with_index=False, _is_transparent=True):
     to_return_img = _img.copy()
     if isinstance(_polygon, list):
         _polygon = np.array(_polygon, dtype=np.int)
     cv2.fillPoly(to_return_img, [_polygon, ], _specific_color)
-    if _is_addweighted:
+    if _is_transparent:
         to_return_img = cv2.addWeighted(to_return_img, 0.5, _img, 0.5, 0)
     return to_return_img
 
@@ -59,6 +59,7 @@ def __annotation_text_on_image(_img, _text_start_position, _text_color, _text):
 def annotation_angle_on_image(_img, _start_point, _middle_point, _end_point, _line_color, _text_color, _angle):
     """
     在图上画一个角
+
     :param _img:    需要标注的图
     :param _start_point:    起点（顺时针）
     :param _middle_point:   中点
@@ -86,17 +87,20 @@ def annotation_angle_on_image(_img, _start_point, _middle_point, _end_point, _li
     return to_return_img
 
 
-def annotation_multi_horizon_width(_img, _y, _x_list, _line_color, _text_color, _text_list, thickness=1, arrow=True):
+def annotation_multi_horizon_width(_img, _y, _x_list, _line_color, _text_color, _text_list,
+                                   _thickness=1,
+                                   _with_arrow=True):
     """
     横向标注多个宽度
+
     :param _img:    需要标注的图像
     :param _y:  当前直线所在高度
     :param _x_list: 所有x的列表
     :param _line_color:     线条颜色（bgr）
     :param _text_color:     文本颜色（bgr）
     :param _text_list:  每个区间需要显示的文本
-    :param thickness: 线条粗细
-    :param arrow: 线条两端是否带箭头
+    :param _thickness: 线条粗细
+    :param _with_arrow: 线条两端是否带箭头
     :return:    标注后的图像
     """
     assert len(_x_list) - 1 == len(_text_list), '线段数与字符串数不匹配'
@@ -106,24 +110,25 @@ def annotation_multi_horizon_width(_img, _y, _x_list, _line_color, _text_color, 
     # 2. 箭头到头的直线
     # 3. 线条对应的文字
     for m_index, (m_start_x, m_end_x, m_text) in enumerate(zip(_x_list[:-1], _x_list[1:], _text_list)):
-        if arrow:
-            cv2.arrowedLine(to_return_img, (m_start_x, _y), (m_end_x, _y), _line_color, thickness=thickness)
-            cv2.arrowedLine(to_return_img, (m_end_x, _y), (m_start_x, _y), _line_color, thickness=thickness)
+        if _with_arrow:
+            cv2.arrowedLine(to_return_img, (m_start_x, _y), (m_end_x, _y), _line_color, thickness=_thickness)
+            cv2.arrowedLine(to_return_img, (m_end_x, _y), (m_start_x, _y), _line_color, thickness=_thickness)
         else:
-            cv2.line(to_return_img, (m_start_x, _y), (m_end_x, _y), _line_color, thickness=thickness)
-            cv2.line(to_return_img, (m_end_x, _y), (m_start_x, _y), _line_color, thickness=thickness)
+            cv2.line(to_return_img, (m_start_x, _y), (m_end_x, _y), _line_color, thickness=_thickness)
+            cv2.line(to_return_img, (m_end_x, _y), (m_start_x, _y), _line_color, thickness=_thickness)
         # 文本在最左侧
         text_start_x = m_start_x
         text_start_y = _y + (10 if m_index % 2 == 0 else -annotate_font.size - 10)
         to_return_img = __annotation_text_on_image(to_return_img, (text_start_x, text_start_y), _text_color, m_text)
     for m_x in _x_list:
-        cv2.line(to_return_img, (m_x, _y - 12), (m_x, _y + 12), _line_color, thickness=thickness)
+        cv2.line(to_return_img, (m_x, _y - 12), (m_x, _y + 12), _line_color, thickness=_thickness)
     return to_return_img
 
 
 def annotation_horizon_width(_img, _y, _start_x, _end_x, _line_color, _text_color, _text):
     """
     横向标注宽度
+
     :param _img:    需要标注的图像
     :param _y:  当前直线所在高度
     :param _start_x:    起始x
@@ -136,17 +141,20 @@ def annotation_horizon_width(_img, _y, _start_x, _end_x, _line_color, _text_colo
     return annotation_multi_horizon_width(_img, _y, [_start_x, _end_x], _line_color, _text_color, [_text])
 
 
-def annotation_multi_vertical_height(_img, _x, _y_list, _line_color, _text_color, _text_list, thickness=1, arrow=True):
+def annotation_multi_vertical_height(_img, _x, _y_list, _line_color, _text_color, _text_list,
+                                     _thickness=1,
+                                     _with_arrow=True):
     """
     纵向标注多个高度
+
     :param _img:    需要标注的图像
     :param _x:  当前直线所在宽度
     :param _y_list:  所有y的列表
     :param _line_color:     线条颜色（bgr）
     :param _text_color:     文本颜色（bgr）
     :param _text_list:  所有需要显示的文本
-    :param thickness: 线条粗细
-    :param arrow: 线条两端是否带箭头
+    :param _thickness: 线条粗细
+    :param _with_arrow: 线条两端是否带箭头
     :return:    标注后的图像
     """
     assert len(_y_list) - 1 == len(_text_list), '线段数与字符串数不匹配'
@@ -156,17 +164,17 @@ def annotation_multi_vertical_height(_img, _x, _y_list, _line_color, _text_color
     # 2. 箭头到头的直线
     # 3. 线条对应的文字
     for m_start_y, m_end_y, m_text in zip(_y_list[:-1], _y_list[1:], _text_list):
-        if arrow:
-            cv2.arrowedLine(to_return_img, (_x, m_start_y), (_x, m_end_y), _line_color, thickness=thickness)
-            cv2.arrowedLine(to_return_img, (_x, m_end_y), (_x, m_start_y), _line_color, thickness=thickness)
+        if _with_arrow:
+            cv2.arrowedLine(to_return_img, (_x, m_start_y), (_x, m_end_y), _line_color, thickness=_thickness)
+            cv2.arrowedLine(to_return_img, (_x, m_end_y), (_x, m_start_y), _line_color, thickness=_thickness)
         else:
-            cv2.line(to_return_img, (_x, m_start_y), (_x, m_end_y), _line_color, thickness=thickness)
-            cv2.line(to_return_img, (_x, m_end_y), (_x, m_start_y), _line_color, thickness=thickness)
+            cv2.line(to_return_img, (_x, m_start_y), (_x, m_end_y), _line_color, thickness=_thickness)
+            cv2.line(to_return_img, (_x, m_end_y), (_x, m_start_y), _line_color, thickness=_thickness)
         text_start_x = _x + 10
         text_start_y = m_start_y + (m_end_y - m_start_y) // 2
         to_return_img = __annotation_text_on_image(to_return_img, (text_start_x, text_start_y), _text_color, m_text)
     for m_y in _y_list:
-        cv2.line(to_return_img, (_x - 12, m_y), (_x + 12, m_y), _line_color, thickness=thickness)
+        cv2.line(to_return_img, (_x - 12, m_y), (_x + 12, m_y), _line_color, thickness=_thickness)
     return to_return_img
 
 
