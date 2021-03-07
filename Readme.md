@@ -27,3 +27,23 @@
 
 ## 0x05 Contributors
 
+## 0x06 快速部署模型的支持列表
+
+> 更多开源模型欢迎在issue中补充，也十分欢迎您的PR。
+
+### 人脸相关
+
+- [ ] [UltraFaceDetect](https://github.com/Linzaer/Ultra-Light-Fast-Generic-Face-Detector-1MB)
+- [ ] [FaceParsing](https://github.com/zllrunning/face-parsing.PyTorch)
+- [ ] [Landmark2D](https://github.com/deepinsight/insightface)
+- [ ] [FaceEmbedding](https://github.com/ZhaoJ9014/face.evoLVe.PyTorch)
+
+### OCR相关
+- [ ] [DB](https://github.com/WenmuZhou/PytorchOCR)
+- [ ] [CRNN](https://github.com/WenmuZhou/PytorchOCR)
+
+
+## 感谢
+
+感谢各位开源项目大佬的无私奉献。
+
