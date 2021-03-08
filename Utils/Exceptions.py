@@ -60,3 +60,10 @@ class NetworkInputParameterException(AlgorithmRuntimeException):
     网络入参异常
     """
     MIRROR_CODE = 11
+
+
+class NetworkInitFailException(AlgorithmRuntimeException):
+    """
+    网络初始化异常
+    """
+    MIRROR_CODE = 21
