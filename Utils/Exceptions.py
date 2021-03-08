@@ -48,7 +48,7 @@ class InputParameterAbsentException(AlgorithmInputParameterException):
     MIRROR_CODE = 15
 
 
-class AlgorithmRuntimeException(AlgorithmOperatorException):
+class AlgorithmRuntimeException(CustomException):
     """
     算子运行时错误
     """
@@ -67,3 +67,31 @@ class NetworkInitFailException(AlgorithmRuntimeException):
     网络初始化异常
     """
     MIRROR_CODE = 21
+
+
+class ConsumerComputeException(CustomException):
+    """
+    消费者端出现的错误
+    """
+    MAJOR_CODE = 3
+
+
+class ConsumerAlgorithmQueryException(ConsumerComputeException):
+    """
+    请求消费者端结果异常
+    """
+    MIRROR_CODE = 11
+
+
+class ConsumerAlgorithmRuntimeException(ConsumerComputeException):
+    """
+    消费者端计算错误
+    """
+    MIRROR_CODE = 12
+
+
+class ConsumerAlgorithmUncatchException(ConsumerComputeException):
+    """
+    消费者端计算错误
+    """
+    MIRROR_CODE = 99
