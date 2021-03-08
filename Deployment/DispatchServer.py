@@ -8,7 +8,7 @@ from fastapi import FastAPI
 import Deployment.APIConsumer as consumer
 from Utils.Exceptions import ConsumerAlgorithmQueryException, ConsumerAlgorithmRuntimeException, \
     ConsumerComputeException, ConsumerAlgorithmUncatchException
-from .server_config import DEPLOY_VERSION, SERVER_NAME,SUBTASK_EXECUTE_TIME_LIMIT_SECONDS
+from Deployment.server_config import DEPLOY_VERSION, SERVER_NAME,SUBTASK_EXECUTE_TIME_LIMIT_SECONDS
 
 app = FastAPI(title=SERVER_NAME, version=DEPLOY_VERSION)
 
@@ -90,6 +90,6 @@ def common_request_interface(_request_algorithm_name, _target_api_name):
 
 
 if __name__ == '__main__':
-    from .server_config import DISPATCH_SERVER_PORT
+    from Deployment.server_config import DISPATCH_SERVER_PORT
 
     uvicorn.run(app, host="0.0.0.0", port=DISPATCH_SERVER_PORT)
