@@ -8,9 +8,12 @@ from fastapi import FastAPI
 import Deployment.APIConsumer as consumer
 from Utils.Exceptions import ConsumerAlgorithmQueryException, ConsumerAlgorithmRuntimeException, \
     ConsumerComputeException, ConsumerAlgorithmUncatchException
-from Deployment.server_config import DEPLOY_VERSION, SERVER_NAME,SUBTASK_EXECUTE_TIME_LIMIT_SECONDS
+from Deployment.server_config import DEPLOY_VERSION, SERVER_NAME, SUBTASK_EXECUTE_TIME_LIMIT_SECONDS, \
+    AVAILABLE_INTERFACES
 
 app = FastAPI(title=SERVER_NAME, version=DEPLOY_VERSION)
+for m_router, m_path_prefix in AVAILABLE_INTERFACES:
+    app.include_router(m_router, prefix=m_path_prefix)
 
 
 async def get_coroutine_task_result(_task):
