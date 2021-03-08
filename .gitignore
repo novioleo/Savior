@@ -46,7 +46,7 @@ pip-log.txt
 pip-delete-this-directory.txt
 
 # 配置文件需要忽略
-Deploy/server_config.py
+Deployment/server_config.py
 
 # Unit test / coverage reports
 htmlcov/
