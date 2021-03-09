@@ -95,3 +95,11 @@ class ConsumerAlgorithmUncatchException(ConsumerComputeException):
     消费者端计算错误
     """
     MIRROR_CODE = 99
+
+
+class GeneralException(CustomException):
+    MAJOR_CODE = 3
+
+
+class ImageFileSizeAbnormalException(GeneralException):
+    MIRROR_CODE = 1
