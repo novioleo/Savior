@@ -27,13 +27,6 @@ class ImageFormatNotSupportException(AlgorithmInputParameterException):
     MIRROR_CODE = 12
 
 
-class ImageFileSizeAbnormalException(AlgorithmInputParameterException):
-    """
-    图像文件大小不正常异常
-    """
-    MIRROR_CODE = 13
-
-
 class InputParameterAbnormalException(AlgorithmInputParameterException):
     """
     输入参数不合理
@@ -102,4 +95,14 @@ class GeneralException(CustomException):
 
 
 class ImageFileSizeAbnormalException(GeneralException):
+    """
+    图像文件大小不正常
+    """
     MIRROR_CODE = 1
+
+
+class ObjectNotFoundOnOSS(GeneralException):
+    """
+    OSS上未找到指定目标
+    """
+    MIRROR_CODE = 2
