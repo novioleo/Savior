@@ -76,6 +76,17 @@ class CustomInferenceHelper(ABC):
         pass
 
 
+class DummyInferenceHelper(CustomInferenceHelper, ABC):
+    """
+
+    dummy inference helper 是为了解决在测试过程中不用去考虑网络是否正确，可以方便团队解耦进行开发。
+
+    """
+    def __init__(self, _algorithm_name):
+        self.name = _algorithm_name
+        self.type_name = 'dummy'
+
+
 class NCNNInferenceHelper(CustomInferenceHelper, ABC):
     def __init__(self, _algorithm_name):
         self.name = _algorithm_name
