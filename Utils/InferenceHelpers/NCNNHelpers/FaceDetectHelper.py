@@ -13,7 +13,8 @@ class FaceDetectInferenceHelper(NCNNInferenceHelper):
             raise NetworkInitFailException('Face Detect network init fail')
         self.add_input('image', (224, 224, 3), '将原始照片进行center pad之后resize至224')
         self.add_output('bboxes', (-1, 5), '经过NMS之后的人脸的bbox，'
-                                           '5个维度分别为left top x,left top y,right bottom x,right bottom y,score')
+                                           '5个维度分别为left top x,left top y,right bottom x,right bottom y,score'
+                                           '为了方便处理，所有的坐标都进行归一化')
 
     def infer(self, _image):
         check_status, status_message = self.all_inputs[0].tensor_check(_image)
