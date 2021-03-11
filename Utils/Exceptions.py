@@ -83,9 +83,16 @@ class ConsumerAlgorithmRuntimeException(ConsumerComputeException):
     MIRROR_CODE = 12
 
 
+class ConsumerAlgorithmTimeoutException(ConsumerComputeException):
+    """
+    消费者端计算超时
+    """
+    MIRROR_CODE = 13
+
+
 class ConsumerAlgorithmUncatchException(ConsumerComputeException):
     """
-    消费者端计算错误
+    消费者端无法捕捉的错误
     """
     MIRROR_CODE = 99
 
