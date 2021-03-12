@@ -1,11 +1,12 @@
 """
 所有的非算法类原子操作都需要基于DummyOperator进行实现
 """
-from abc import ABC, abstractmethod
 import logging
-from logging import handlers
 import os
-import datetime
+from abc import ABC, abstractmethod
+from logging import handlers
+
+from Utils.misc import get_date_string
 
 
 class DummyOperator(ABC):
@@ -22,7 +23,7 @@ class DummyOperator(ABC):
             self.logger.setLevel(logging.INFO)
         # 会在工作目录下面创建文件夹logs，用于装载日志
         os.makedirs('logs', exist_ok=True)
-        date_string = datetime.date.today().strftime('%Y%m%d')
+        date_string = get_date_string()
         log_format = f'%(asctime)s : %(levelname)s : %(process)d: %(thread)x: {self.name}: line %(lineno)d: %(message)s'
         # 每天存储一个文件，存储31天，且文件名包含启动日期
         log_file_handler = handlers.TimedRotatingFileHandler(f'logs/{self.name}_{date_string}启动.log', encoding='utf-8',
