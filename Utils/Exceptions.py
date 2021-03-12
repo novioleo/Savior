@@ -90,8 +90,50 @@ class ConsumerAlgorithmUncatchException(ConsumerComputeException):
     MIRROR_CODE = 99
 
 
-class GeneralException(CustomException):
+class DeepLearningInferenceException(CustomException):
+    """
+    深度学习推理的异常
+    """
     MAJOR_CODE = 3
+
+
+class TritonUncatchException(DeepLearningInferenceException):
+    """
+    Triton推理无法捕捉的异常
+    """
+    MIRROR_CODE = 1
+
+
+class NCNNUncatchaException(DeepLearningInferenceException):
+    """
+    NCNN推理无法捕捉的异常
+    """
+    MIRROR_CODE = 2
+
+
+class TritonServerCannotConnectException(DeepLearningInferenceException):
+    """
+    无法连接Triton服务器
+    """
+    MIRROR_CODE = 10
+
+
+class TritonServerNotReadyException(DeepLearningInferenceException):
+    """
+    Triton服务器还未准备好，可能在启动中
+    """
+    MIRROR_CODE = 11
+
+
+class TritonModelNotReadyException(DeepLearningInferenceException):
+    """
+    Triton上面的特定模型还未加载完成
+    """
+    MIRROR_CODE = 12
+
+
+class GeneralException(CustomException):
+    MAJOR_CODE = 4
 
 
 class ImageFileSizeAbnormalException(GeneralException):
