@@ -6,7 +6,7 @@ import numpy as np
 import cv2
 import msgpack
 import msgpack_numpy as m
-
+import os
 from Utils.Exceptions import ImageFileSizeAbnormalException, ObjectNotFoundOnOSS
 
 
