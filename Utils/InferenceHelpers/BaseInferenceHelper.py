@@ -1,5 +1,11 @@
 from abc import ABC, abstractmethod
+
+import grpc
 import numpy as np
+import tritongrpcclient
+from tritongrpcclient import grpc_service_pb2_grpc
+
+from Utils.Exceptions import TritonServerCannotConnectException, TritonServerNotReadyException
 
 
 class TensorInfo:
@@ -82,6 +88,7 @@ class DummyInferenceHelper(CustomInferenceHelper, ABC):
     dummy inference helper 是为了解决在测试过程中不用去考虑网络是否正确，可以方便团队解耦进行开发。
 
     """
+
     def __init__(self, _algorithm_name):
         self.name = _algorithm_name
         self.type_name = 'dummy'
@@ -94,8 +101,69 @@ class NCNNInferenceHelper(CustomInferenceHelper, ABC):
         self.handler = None
 
 
-class TritonInferenceHelper(CustomInferenceHelper, ABC):
+class CustomInferenceServerClient(tritongrpcclient.InferenceServerClient):
+    def __init__(self, url, verbose=False):
+        super(CustomInferenceServerClient, self).__init__(url, verbose=False)
+        channel_opt = [('grpc.max_send_message_length', 10 * 3 * 1024 * 1024),
+                       ('grpc.max_receive_message_length', 5 * 1024 * 1024)]
+        self._channel = grpc.insecure_channel(url, options=channel_opt)
+        self._client_stub = grpc_service_pb2_grpc.GRPCInferenceServiceStub(
+            self._channel)
+        self._verbose = verbose
+        self._stream = None
 
-    def __init__(self, _algorithm_name):
+
+class TritonInferenceHelper(CustomInferenceHelper, ABC):
+    numpy_data_type_mapper = {
+        np.half.__name__: "FP16",
+        np.float32.__name__: "FP32",
+        np.float64.__name__: "FP64",
+        np.bool.__name__: "BOOL",
+        np.uint8.__name__: "UINT8",
+        np.int8.__name__: "INT8",
+        np.short.__name__: "INT16",
+        np.int.__name__: "INT32",
+    }
+
+    def __init__(self,
+                 _algorithm_name,
+                 _server_url, _server_port,
+                 _model_name, _model_version,
+                 _input_names, _output_names,
+                 ):
         self.name = _algorithm_name
         self.type_name = 'triton'
+        self.target_url = '%s:%s' % (_server_url, _server_port)
+        self.model_name = _model_name
+        self.model_version = str(_model_version)
+        self.input_names = _input_names
+        self.output_names = _output_names
+
+        try:
+            self.triton_client = CustomInferenceServerClient(url=self.target_url)
+        except Exception as e:
+            raise TritonServerCannotConnectException(f'triton server {self.target_url} connect fail')
+        if not self.triton_client.is_server_ready():
+            raise TritonServerNotReadyException(f'triton server {self.target_url} not ready')
+
+    def infer_request(self, **_input_tensor):
+        inputs = []
+        assert _input_tensor.keys() == set(self.input_names), f'{self.model_name} the input tensor not match'
+        for m_name in self.input_names:
+            m_tensor = _input_tensor[m_name]
+            assert isinstance(m_tensor, np.ndarray) and \
+                   m_tensor.dtype.name in self.numpy_data_type_mapper, \
+                f'input tensor [{m_name}] is out of line '
+            m_infer_input = tritongrpcclient.InferInput(m_name,
+                                                        m_tensor.shape,
+                                                        self.numpy_data_type_mapper[m_tensor.dtype.name]
+                                                        )
+            m_infer_input.set_data_from_numpy(m_tensor)
+            inputs.append(m_infer_input)
+        results = self.triton_client.infer(model_name=self.model_name,
+                                           model_version=self.model_version,
+                                           inputs=inputs)
+        to_return_result = dict()
+        for m_result_name in self.output_names:
+            to_return_result[m_result_name] = results.as_numpy(m_result_name)
+        return to_return_result
