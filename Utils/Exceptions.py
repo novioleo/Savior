@@ -20,13 +20,6 @@ class AlgorithmInputParameterException(AlgorithmOperatorException):
     MIRROR_CODE = 11
 
 
-class ImageFormatNotSupportException(AlgorithmInputParameterException):
-    """
-    图像格式不支持
-    """
-    MIRROR_CODE = 12
-
-
 class InputParameterAbnormalException(AlgorithmInputParameterException):
     """
     输入参数不合理
@@ -113,3 +106,17 @@ class ObjectNotFoundOnOSS(GeneralException):
     OSS上未找到指定目标
     """
     MIRROR_CODE = 2
+
+
+class ImageDownloadTimeoutException(GeneralException):
+    """
+    图像下载超时
+    """
+    MIRROR_CODE = 3
+
+
+class ImageFormatNotSupportException(GeneralException):
+    """
+    图像格式不支持
+    """
+    MIRROR_CODE = 4
