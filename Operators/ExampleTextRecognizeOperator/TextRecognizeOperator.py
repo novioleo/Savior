@@ -39,6 +39,11 @@ class GeneralCRNN(TextRecognizeOperator):
         if isinstance(self.inference_helper, TritonInferenceHelper):
             resized_image = resize_with_height(_image, 32)
             padded_image = center_pad_image_with_specific_base(resized_image, _width_base=4).astype(np.float32)
+            if len(padded_image.shape) == 2:
+                padded_image = cv2.cvtColor(padded_image,cv2.COLOR_GRAY2BGR)
+            else:
+                if padded_image.shape[-1] == 4:
+                    padded_image = cv2.cvtColor(padded_image,cv2.COLOR_BGRA2BGR)
             result = self.inference_helper.infer(_need_tensor_check=False, INPUT__0=padded_image)
             decode_result = self.ctc_decoder.decode(result['OUTPUT__1'], result['OUTPUT__0'])[0]
             to_return_result['text'] = decode_result[0]
