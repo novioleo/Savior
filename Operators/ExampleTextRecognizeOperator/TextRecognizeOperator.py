@@ -12,6 +12,8 @@ class TextRecognizeOperator(DummyAlgorithm, ABC):
     """
     可以根据自己的需求定制自己的文本识别模型
     """
+    name = "文本识别"
+    __version__ = 'v1.0.20210315'
 
     def __init__(self, _inference_helper, _alphabet_config_name, _is_test):
         super().__init__(_is_test)
@@ -23,6 +25,8 @@ class GeneralCRNN(TextRecognizeOperator):
     """
     面向自然场景的CRNN
     """
+    name = "基于CRNN的自然场景文本识别"
+    __version__ = 'v1.0.20210315'
 
     def __init__(self, _inference_helper, _alphabet_config_name, _is_test):
         super().__init__(_inference_helper, _alphabet_config_name, _is_test)
