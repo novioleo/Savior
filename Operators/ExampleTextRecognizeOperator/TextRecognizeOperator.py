@@ -47,7 +47,7 @@ if __name__ == '__main__':
     ag = ArgumentParser('Text Recognize Example')
     ag.add_argument('-i', '--image_path', dest='image_path', type=str, required=True, help='本地图像路径')
     ag.add_argument('-u', '--triton_url', dest='triton_url', type=str, required=True, help='triton url')
-    ag.add_argument('-p', '--triton_url', dest='triton_port', type=int, default=8001, help='triton grpc 端口')
+    ag.add_argument('-p', '--triton_port', dest='triton_port', type=int, default=8001, help='triton grpc 端口')
     args = ag.parse_args()
     img = cv2.imread(args.image_path)
     crnn_mbv3 = TritonInferenceHelper('crnn_mbv3', args.triton_url, args.triton_port, 'CRNN_mbv3', 1)
