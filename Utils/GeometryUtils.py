@@ -250,3 +250,48 @@ def get_distance(_p1, _p2):
 
         """
     return np.sqrt(np.sum(np.square(_p1 - _p2)))
+
+
+def resize_with_height(_image, _target_height):
+    h, w = _image.shape[:2]
+    ratio = h / _target_height
+    target_w = int(np.ceil(w / ratio))
+    return cv2.resize(_image, (target_w, _target_height))
+
+
+def resize_with_width(_image, _target_width):
+    h, w = _image.shape[:2]
+    ratio = w / _target_width
+    target_h = int(np.ceil(h / ratio))
+    return cv2.resize(_image, (_target_width, target_h))
+
+
+def resize_with_short_side(_image, _target_short_side_size):
+    h, w = _image.shape[:2]
+    if h > w:
+        return resize_with_width(_image, _target_short_side_size)
+    else:
+        return resize_with_height(_image, _target_short_side_size)
+
+
+def center_pad_image_with_specific_base(_image, _height_base=None, _width_base=None, _pad_value=0):
+    h, w = _image.shape[:2]
+    target_h = h
+    target_w = w
+    if _height_base is not None:
+        if h <= _height_base:
+            target_h = _height_base
+        else:
+            target_h = int(np.ceil(h / _height_base) * _height_base)
+    if _width_base is not None:
+        if w <= _width_base:
+            target_w = _width_base
+        else:
+            target_w = int(np.ceil(w / _width_base) * _width_base)
+    full_size_image = np.ones((target_h, target_w, _image.shape[2]), dtype=_image.dtype) * _pad_value
+    left_margin = (target_w - w) // 2
+    right_margin = left_margin + w
+    top_margin = (target_h - h) // 2
+    bottom_margin = top_margin + target_h
+    full_size_image[top_margin:bottom_margin, left_margin:right_margin, ...] = _image
+    return full_size_image
