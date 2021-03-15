@@ -25,7 +25,7 @@
 2. redis
 3. fastapi
 4. ncnn
-5. triton
+5. triton(>=20.07)
 6. rabbitmq
 
 ## 0x04 Model Repo
