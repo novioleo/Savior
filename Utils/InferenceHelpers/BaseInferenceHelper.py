@@ -1,11 +1,13 @@
 from abc import ABC, abstractmethod
+from collections import OrderedDict
 
 import grpc
 import numpy as np
 import tritongrpcclient
 from tritongrpcclient import grpc_service_pb2_grpc
 
-from Utils.Exceptions import TritonServerCannotConnectException, TritonServerNotReadyException
+from Utils.Exceptions import TritonServerCannotConnectException, TritonServerNotReadyException, \
+    InferenceTensorCheckFailException
 
 
 class TensorInfo:
@@ -26,23 +28,51 @@ class TensorInfo:
             return False, str(ae)
 
 
+class ImageTensorInfo(TensorInfo):
+    def __init__(self, _name, _shape, _description, _mean_and_std=None):
+        super().__init__(_name, _shape, _description)
+        self.mean_and_std = _mean_and_std
+        if _mean_and_std is not None:
+            mean, std = self.mean_and_std
+            # 针对于灰度和非灰度的图像两种情况
+            if len(self.shape) == 2:
+                assert len(mean) == 1 and len(std) == 1, \
+                    'mean and std are not suit for image tensor'
+            elif len(self.shape) == 3:
+                assert len(mean) == self.shape[-1] and len(std) == self.shape[-1], \
+                    'mean and std are not suit for image tensor'
+
+    def normalize(self, _image, _tensor_format='chw'):
+        if self.mean_and_std is not None:
+            mean, std = self.mean_and_std
+            normalized_tensor = (_image - mean) / std
+        else:
+            normalized_tensor = _image
+        if _tensor_format == 'chw':
+            return np.transpose(normalized_tensor, (2, 0, 1))[None, ...]
+        elif _tensor_format == 'hwc':
+            return _image
+        else:
+            raise NotImplementedError(f'tensor format {_tensor_format} not implement')
+
+
 class CustomInferenceHelper(ABC):
     name = 'default'
     type_name = 'default'
-    all_inputs = list()
-    all_outputs = list()
+    all_inputs = OrderedDict()
+    all_outputs = OrderedDict()
 
     def add_input(self, _input_name, _input_shape, _input_description):
-        self.all_inputs.append(TensorInfo(_input_name, _input_shape, _input_description))
+        self.all_inputs[_input_name] = TensorInfo(_input_name, _input_shape, _input_description)
 
     def add_output(self, _output_name, _output_shape, _output_description):
-        self.all_outputs.append(TensorInfo(_output_name, _output_shape, _output_description))
+        self.all_outputs[_output_name] = TensorInfo(_output_name, _output_shape, _output_description)
 
     def network_input_description(self):
         to_return_description = [
             f'input nums:{len(self.all_inputs)}',
         ]
-        for m_input in self.all_inputs:
+        for m_input_name, m_input in self.all_inputs.items():
             to_return_description.append(
                 f'name:{m_input.name}'
             )
@@ -52,13 +82,21 @@ class CustomInferenceHelper(ABC):
             to_return_description.append(
                 f'\tdescription:{m_input.description}'
             )
+            if hasattr(m_input, 'mean_and_std'):
+                to_return_description.append(
+                    f'\tmean:[{",".join(["%0.5f" % _ for _ in m_input.mean_and_std[0]])}]'
+                )
+                to_return_description.append(
+                    f'\tstd:[{",".join(["%0.5f" % _ for _ in m_input.mean_and_std[1]])}]'
+                )
+
         return '\n'.join(to_return_description)
 
     def network_output_description(self):
         to_return_description = [
             f'ouput nums:{len(self.all_inputs)}',
         ]
-        for m_output in self.all_outputs:
+        for m_output_name, m_output in self.all_outputs.items():
             to_return_description.append(
                 f'name:{m_output.name}'
             )
@@ -129,15 +167,12 @@ class TritonInferenceHelper(CustomInferenceHelper, ABC):
                  _algorithm_name,
                  _server_url, _server_port,
                  _model_name, _model_version,
-                 _input_names, _output_names,
                  ):
         self.name = _algorithm_name
         self.type_name = 'triton'
         self.target_url = '%s:%s' % (_server_url, _server_port)
         self.model_name = _model_name
         self.model_version = str(_model_version)
-        self.input_names = _input_names
-        self.output_names = _output_names
 
         try:
             self.triton_client = CustomInferenceServerClient(url=self.target_url)
@@ -146,24 +181,31 @@ class TritonInferenceHelper(CustomInferenceHelper, ABC):
         if not self.triton_client.is_server_ready():
             raise TritonServerNotReadyException(f'triton server {self.target_url} not ready')
 
-    def infer_request(self, **_input_tensor):
+    def add_image_input(self, _input_name, _input_shape, _input_description, _mean_and_std):
+        self.all_inputs[_input_name] = ImageTensorInfo(_input_name, _input_shape, _input_description, _mean_and_std)
+
+    def infer(self, _need_tensor_check=False, **_input_tensor):
         inputs = []
-        assert _input_tensor.keys() == set(self.input_names), f'{self.model_name} the input tensor not match'
-        for m_name in self.input_names:
+        assert _input_tensor.keys() == set(self.all_inputs.keys()), f'{self.model_name} the input tensor not match'
+        for m_name, m_tensor_info in self.all_inputs.items():
             m_tensor = _input_tensor[m_name]
-            assert isinstance(m_tensor, np.ndarray) and \
-                   m_tensor.dtype.name in self.numpy_data_type_mapper, \
-                f'input tensor [{m_name}] is out of line '
+            if not (isinstance(m_tensor, np.ndarray) and m_tensor.dtype.name in self.numpy_data_type_mapper):
+                raise InferenceTensorCheckFailException(f'tensor {m_name} is available numpy array')
+            if _need_tensor_check:
+                check_status, check_result = m_tensor_info.tensor_check(m_tensor, 3 * 10 * 1024 * 1024)
+                if not check_status:
+                    raise InferenceTensorCheckFailException(check_result)
+            m_normalized_tensor = m_tensor_info.normalize(m_tensor, _tensor_format='chw').astype(m_tensor.dtype)
             m_infer_input = tritongrpcclient.InferInput(m_name,
-                                                        m_tensor.shape,
-                                                        self.numpy_data_type_mapper[m_tensor.dtype.name]
+                                                        m_normalized_tensor.shape,
+                                                        self.numpy_data_type_mapper[m_normalized_tensor.dtype.name]
                                                         )
-            m_infer_input.set_data_from_numpy(m_tensor)
+            m_infer_input.set_data_from_numpy(m_normalized_tensor)
             inputs.append(m_infer_input)
         results = self.triton_client.infer(model_name=self.model_name,
                                            model_version=self.model_version,
                                            inputs=inputs)
         to_return_result = dict()
-        for m_result_name in self.output_names:
+        for m_result_name in self.all_outputs.keys():
             to_return_result[m_result_name] = results.as_numpy(m_result_name)
         return to_return_result
