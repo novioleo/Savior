@@ -26,4 +26,6 @@ celery_worker_app.conf.task_queues = (
 # 用于放置一些非计算密集型任务
 background_thread_pool_executor = ThreadPoolExecutor()
 
-celery_worker_app.autodiscover_tasks(['Deployment.ConsumerServices'])
+celery_worker_app.autodiscover_tasks([
+    'Deployment.ConsumerServices.OCRService',
+], related_name=None, force=True)
