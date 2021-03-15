@@ -111,25 +111,32 @@ class NCNNUncatchaException(DeepLearningInferenceException):
     MIRROR_CODE = 2
 
 
+class InferenceTensorCheckFailException(DeepLearningInferenceException):
+    """
+    推理时的tensor有效性检查失败
+    """
+    MIRROR_CODE = 3
+
+
 class TritonServerCannotConnectException(DeepLearningInferenceException):
     """
     无法连接Triton服务器
     """
-    MIRROR_CODE = 10
+    MIRROR_CODE = 11
 
 
 class TritonServerNotReadyException(DeepLearningInferenceException):
     """
     Triton服务器还未准备好，可能在启动中
     """
-    MIRROR_CODE = 11
+    MIRROR_CODE = 12
 
 
 class TritonModelNotReadyException(DeepLearningInferenceException):
     """
     Triton上面的特定模型还未加载完成
     """
-    MIRROR_CODE = 12
+    MIRROR_CODE = 13
 
 
 class GeneralException(CustomException):
