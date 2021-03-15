@@ -28,7 +28,11 @@
 5. triton
 6. rabbitmq
 
-## 0x04 Release Notes
+## 0x04 Model Repo
+
+官方已适配模型下载地址（不定时更新）：
+
+- [百度网盘](https://pan.baidu.com/s/1DvSQMM76gGAltPLma6w1wQ)  密码: sg11
 
 ## 0x05 Contributors
 
@@ -45,7 +49,7 @@
 
 ### OCR相关
 - [ ] [DB](https://github.com/WenmuZhou/PytorchOCR)
-- [ ] [CRNN](https://github.com/WenmuZhou/PytorchOCR)
+- [x] [CRNN](https://github.com/WenmuZhou/PytorchOCR)
 
 ## 0x07 框架思路
 
