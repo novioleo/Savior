@@ -142,8 +142,8 @@ class NCNNInferenceHelper(CustomInferenceHelper, ABC):
 class CustomInferenceServerClient(tritongrpcclient.InferenceServerClient):
     def __init__(self, url, verbose=False):
         super(CustomInferenceServerClient, self).__init__(url, verbose=False)
-        channel_opt = [('grpc.max_send_message_length', 10 * 3 * 1024 * 1024),
-                       ('grpc.max_receive_message_length', 5 * 1024 * 1024)]
+        channel_opt = [('grpc.max_send_message_length', 50 * 1024 * 1024),
+                       ('grpc.max_receive_message_length', 50 * 1024 * 1024)]
         self._channel = grpc.insecure_channel(url, options=channel_opt)
         self._client_stub = grpc_service_pb2_grpc.GRPCInferenceServiceStub(
             self._channel)
