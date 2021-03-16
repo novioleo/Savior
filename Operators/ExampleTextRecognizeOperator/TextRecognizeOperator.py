@@ -64,7 +64,7 @@ if __name__ == '__main__':
     crnn_mbv3.add_image_input('INPUT__0', (32, -1, 3), '识别用的图像', ([127.5, 127.5, 127.5], [127.5, 127.5, 127.5]))
     crnn_mbv3.add_output('OUTPUT__0', (-1, 1), '识别的max')
     crnn_mbv3.add_output('OUTPUT__1', (-1, 1), '识别的argmax的结果')
-    crnn_res34 = TritonInferenceHelper('crnn_res34', 'localhost', 8001, 'CRNN_res34', 1)
+    crnn_res34 = TritonInferenceHelper('crnn_res34', args.triton_url, args.triton_port, 'CRNN_res34', 1)
     crnn_res34.add_image_input('INPUT__0', (32, -1, 3), '识别用的图像', ([127.5, 127.5, 127.5], [127.5, 127.5, 127.5]))
     crnn_res34.add_output('OUTPUT__0', (-1, 1), '识别的max')
     crnn_res34.add_output('OUTPUT__1', (-1, 1), '识别的argmax的结果')
