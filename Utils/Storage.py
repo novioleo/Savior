@@ -7,6 +7,8 @@ import cv2
 import msgpack
 import msgpack_numpy as m
 import os
+
+from Deployment.server_config import OSS_TYPE, OSS_INFO
 from Utils.Exceptions import ImageFileSizeAbnormalException, ObjectNotFoundOnOSS
 
 
@@ -150,6 +152,23 @@ class MinioOSS(CloudObjectStorage):
     def upload_data(self, _bucket_name, _object_path, _to_upload_object_bytes):
         return self.client.put_object(_bucket_name, _object_path, _to_upload_object_bytes, -1,
                                       part_size=5 * 1024 * 1024).object_name
+
+
+def get_oss_handler():
+    if OSS_TYPE == 'MINIO':
+        to_return_handler = MinioOSS(
+            _endpoint=OSS_INFO['ENDPOINT'],
+            _access_key=OSS_INFO['ACCESS_KEY'],
+            _secret_key=OSS_INFO['SECRET_KEY'],
+            _region=OSS_INFO['REGION'],
+        )
+    elif OSS_TYPE == 'DUMMY':
+        to_return_handler = DummyOSS(
+            None, None, None
+        )
+    else:
+        raise NotImplementedError(f'oss client {OSS_TYPE} not implement')
+    return to_return_handler
 
 
 if __name__ == '__main__':
