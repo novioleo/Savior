@@ -28,9 +28,6 @@ class GeneralCRNN(TextRecognizeOperator):
     name = "基于CRNN的自然场景文本识别"
     __version__ = 'v1.0.20210315'
 
-    def __init__(self, _inference_helper, _alphabet_config_name, _is_test):
-        super().__init__(_inference_helper, _alphabet_config_name, _is_test)
-
     def execute(self, _image):
         to_return_result = {
             'text': '',
@@ -49,7 +46,7 @@ class GeneralCRNN(TextRecognizeOperator):
             to_return_result['text'] = decode_result[0]
             to_return_result['probability'] = decode_result[1]
         else:
-            raise NotImplementedError(f"{self.inference_helper.type_name} helper for ncnn not implement")
+            raise NotImplementedError(f"{self.inference_helper.type_name} helper for crnn not implement")
         return to_return_result
 
 
