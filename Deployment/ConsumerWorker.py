@@ -26,6 +26,9 @@ celery_worker_app.conf.task_queues = (
 # 用于放置一些非计算密集型任务
 background_thread_pool_executor = ThreadPoolExecutor()
 
+# 配置所需要的service的package name
+# note:GeneralService最好一直保留，会涉及一些基础操作，例如下载数据、操作数据库等
 celery_worker_app.autodiscover_tasks([
+    'Deployment.ConsumerServices.GeneralService',
     'Deployment.ConsumerServices.OCRService',
 ], related_name=None, force=True)
