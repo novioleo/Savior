@@ -79,7 +79,7 @@ class ServiceTask(Task):
 
     def add_dependency_from_value(self, _field_name, _field_value):
         assert _field_name in self.require_field, f'{_field_name} DONT NEED in {self.service_name}'
-        available_type = [int, float, str]
+        available_type = [int, float, str, dict, list]
         assert any([isinstance(_field_value, m_type) for m_type in available_type]), \
             f'field value type is {type(_field_value)},which is not support now.'
         self.filled_field[_field_name] = _field_value
@@ -114,8 +114,17 @@ class ServiceTask(Task):
 
     @classmethod
     async def wait_and_compose_all_task_result(cls, *tasks):
+        """
+        打包所有task的结果
+
+        Args:
+            *tasks: 所有的task
+
+        Returns:    所有task的结果的detail
+
+        """
         to_return_result = OrderedDict()
         all_task_results = await asyncio.gather(*tasks)
         for m_task, m_task_result in zip(tasks, all_task_results):
-            to_return_result[m_task.task_name] = m_task_result
+            to_return_result[m_task.task_name] = m_task_result['detail']
         return to_return_result
