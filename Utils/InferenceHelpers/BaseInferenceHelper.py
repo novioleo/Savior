@@ -3,8 +3,7 @@ from collections import OrderedDict
 
 import grpc
 import numpy as np
-import tritongrpcclient
-from tritongrpcclient import grpc_service_pb2_grpc
+import tritonclient.grpc as grpcclient
 
 from Utils.Exceptions import TritonServerCannotConnectException, TritonServerNotReadyException, \
     InferenceTensorCheckFailException
@@ -139,13 +138,13 @@ class NCNNInferenceHelper(CustomInferenceHelper, ABC):
         self.handler = None
 
 
-class CustomInferenceServerClient(tritongrpcclient.InferenceServerClient):
+class CustomInferenceServerClient(grpcclient.InferenceServerClient):
     def __init__(self, url, verbose=False):
         super(CustomInferenceServerClient, self).__init__(url, verbose=False)
         channel_opt = [('grpc.max_send_message_length', 50 * 1024 * 1024),
                        ('grpc.max_receive_message_length', 50 * 1024 * 1024)]
         self._channel = grpc.insecure_channel(url, options=channel_opt)
-        self._client_stub = grpc_service_pb2_grpc.GRPCInferenceServiceStub(
+        self._client_stub = grpcclient.grpc_service_pb2_grpc.GRPCInferenceServiceStub(
             self._channel)
         self._verbose = verbose
         self._stream = None
@@ -160,7 +159,7 @@ class TritonInferenceHelper(CustomInferenceHelper, ABC):
         np.uint8.__name__: "UINT8",
         np.int8.__name__: "INT8",
         np.short.__name__: "INT16",
-        np.int.__name__: "INT32",
+        np.int32.__name__: "INT32",
     }
 
     def __init__(self,
@@ -175,7 +174,8 @@ class TritonInferenceHelper(CustomInferenceHelper, ABC):
         self.model_version = str(_model_version)
 
         try:
-            self.triton_client = CustomInferenceServerClient(url=self.target_url)
+            # self.triton_client = CustomInferenceServerClient(url=self.target_url)
+            self.triton_client = grpcclient.InferenceServerClient(url=self.target_url)
         except Exception as e:
             raise TritonServerCannotConnectException(f'triton server {self.target_url} connect fail')
         if not self.triton_client.is_server_ready():
@@ -196,10 +196,10 @@ class TritonInferenceHelper(CustomInferenceHelper, ABC):
                 if not check_status:
                     raise InferenceTensorCheckFailException(check_result)
             m_normalized_tensor = m_tensor_info.normalize(m_tensor, _tensor_format='chw').astype(m_tensor.dtype)
-            m_infer_input = tritongrpcclient.InferInput(m_name,
-                                                        m_normalized_tensor.shape,
-                                                        self.numpy_data_type_mapper[m_normalized_tensor.dtype.name]
-                                                        )
+            m_infer_input = grpcclient.InferInput(m_name,
+                                                  m_normalized_tensor.shape,
+                                                  self.numpy_data_type_mapper[m_normalized_tensor.dtype.name]
+                                                  )
             m_infer_input.set_data_from_numpy(m_normalized_tensor)
             inputs.append(m_infer_input)
         results = self.triton_client.infer(model_name=self.model_name,
