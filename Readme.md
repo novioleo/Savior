@@ -48,7 +48,7 @@
 - [ ] [FaceEmbedding](https://github.com/ZhaoJ9014/face.evoLVe.PyTorch)
 
 ### OCR相关
-- [ ] [DB](https://github.com/WenmuZhou/PytorchOCR)
+- [x] [DB](https://github.com/WenmuZhou/PytorchOCR)
 - [x] [CRNN](https://github.com/WenmuZhou/PytorchOCR)
 
 ## 0x07 框架思路
