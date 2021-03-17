@@ -521,13 +521,13 @@ def get_rotated_box_roi_from_image(_image, _rotated_box):
     h, w = _image.shape[:2]
     to_rotate_degree = _rotated_box['degree']
     box_center = (_rotated_box['center_x'] * w, _rotated_box['center_y'] * h)
-    box_height, box_width = (_rotated_box['box_height'] * h, _rotated_box['box_width'] * w)
+    half_box_height, half_box_width = _rotated_box['box_height'] / 2, _rotated_box['box_width'] / 2
     rotated_image, _ = rotate_degree_img(_image, to_rotate_degree, box_center, _with_expand=False)
     to_crop_location = {
-        'top_left_x': _rotated_box['center_x'] - box_width / 2,
-        'top_left_y': _rotated_box['center_y'] - box_height / 2,
-        'bottom_right_x': _rotated_box['center_x'] + box_width / 2,
-        'bottom_right_y': _rotated_box['center_y'] + box_height / 2,
+        'top_left_x': _rotated_box['center_x'] - half_box_width,
+        'top_left_y': _rotated_box['center_y'] - half_box_height,
+        'bottom_right_x': _rotated_box['center_x'] + half_box_width,
+        'bottom_right_y': _rotated_box['center_y'] + half_box_height,
     }
     cropped_image = get_cropped_image(rotated_image, to_crop_location)
     return cropped_image
