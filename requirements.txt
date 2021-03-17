@@ -15,3 +15,5 @@ minio==7.0.2
 msgpack==1.0.2
 msgpack-numpy==0.4.7.1
 requests==2.25.1
+pyclipper==1.2.1
+shapely==1.7.1
