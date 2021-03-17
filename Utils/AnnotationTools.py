@@ -191,4 +191,35 @@ def annotation_vertical_height(_img, _x, _start_y, _end_y, _line_color, _text_co
 
 def draw_rotated_bbox(_to_draw_image, _rotated_box, _color, _thickness):
     rotated_points = get_coordinates_of_rotated_box(_to_draw_image, _rotated_box)
-    cv2.polylines(_to_draw_image, [rotated_points,], True, _color, _thickness)
+    cv2.polylines(_to_draw_image, [rotated_points, ], True, _color, _thickness)
+
+
+def annotate_detect_rotated_bbox_and_text_result(
+        _to_draw_image,
+        _rotated_box_list, _text_list,
+        _box_color, _box_thickness
+):
+    """
+    标注rotated box和文本到图片上
+
+    Args:
+        _to_draw_image:     待标注图像
+        _rotated_box_list:  box列表
+        _text_list:     文本列表
+        _box_color:     box的颜色
+        _box_thickness:     box的边框粗细
+
+    Returns:    标注好的图像
+
+    """
+    to_return_image = _to_draw_image.copy()
+    h, w = to_return_image.shape[:2]
+    for m_box, m_text in zip(_rotated_box_list, _text_list):
+        draw_rotated_bbox(to_return_image, m_box, _box_color, _box_thickness)
+        m_box_center_x = int(m_box['center_x'] * w)
+        m_box_center_y = int(m_box['center_y'] * h)
+        to_return_image = __annotation_text_on_image(to_return_image,
+                                                     (m_box_center_x, m_box_center_y),
+                                                     (0, 255, 0),
+                                                     m_text['text'])
+    return to_return_image
