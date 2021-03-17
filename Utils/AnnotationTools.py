@@ -3,7 +3,7 @@ import os
 from PIL import Image, ImageDraw, ImageFont
 import numpy as np
 
-from Utils.GeometryUtils import compute_two_points_angle
+from Utils.GeometryUtils import compute_two_points_angle, get_coordinates_of_rotated_box
 
 current_directory = os.path.dirname(__file__)
 candidate_font = '田氏颜体大字库2.0.ttf'
@@ -187,3 +187,8 @@ def annotation_multi_vertical_height(_img, _x, _y_list, _line_color, _text_color
 
 def annotation_vertical_height(_img, _x, _start_y, _end_y, _line_color, _text_color, _text):
     return annotation_multi_vertical_height(_img, _x, [_start_y, _end_y], _line_color, _text_color, [_text, ])
+
+
+def draw_rotated_bbox(_to_draw_image, _rotated_box, _color, _thickness):
+    rotated_points = get_coordinates_of_rotated_box(_to_draw_image, _rotated_box)
+    cv2.polylines(_to_draw_image, [rotated_points,], True, _color, _thickness)
