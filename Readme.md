@@ -48,9 +48,19 @@
 5. 配置python与安装依赖，通过控制台进入Savior文件夹中，创建环境：`conda create -n SaviorEnv python=3.8`，激活环境`source activate SaviorEnv`，安装依赖：`python -m pip install nvidia-pyindex==1.0.6 && python -m pip install -r requirements.txt`
 6. 启动ConsumerWorker，通过控制台进入Savior文件夹中，启动worker：`celery -A Deployment.ConsumerWorker worker --loglevel=INFO`，如果一切配置正确会显示已经成功加载Task。
 7. 启动DispatchServer，通过控制台进入Savior文件夹中，启动server：`python Deployment/DispathServer.py`，启动成功会看到端口信息等。
+8. 测试接口服务，推荐使用[apifox](https://www.apifox.cn/)进行接口调用测试，可以通过post请求测试`ocr_interface/general_ocr`接口，传入参数`image_url`，发送请求（第一次运行需要等待，模型需要预热，五次之后基本上时间会稳定），会得到一个OSS的路径，如果OSS使用的是Dummy（默认），则找到`/tmp/DummyOSS-temp-directory/{bucket_name}/{path}`对应的文件。
 
 [生产级使用教程点我](./Docs/AdvancedTutorial.md)
 
+## 接口结果预览
+
+### OCR相关
+
+[自然场景下OCRocr_interface/general_ocr](./Docs/ResultImageGallery/general_ocr接口结果展示图.webp)
+
+## 如何在自有项目下开发？
+
+移步至：[DevelopTutorial](./Docs/DevelopTutorial.md)
 
 ## 感谢
 
