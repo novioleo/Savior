@@ -1,6 +1,5 @@
 import asyncio
 import time
-from asyncio import Task
 from collections import OrderedDict
 from celery import exceptions as celery_exceptions
 import traceback as tb
@@ -8,7 +7,7 @@ import traceback as tb
 from Utils.Exceptions import ConsumerAlgorithmTimeoutException, ConsumerAlgorithmUncatchException
 
 
-class ServiceTask(Task):
+class ServiceTask:
     """
     用于在interface层调用service
     """
@@ -24,7 +23,6 @@ class ServiceTask(Task):
     binding_service = None
 
     def __init__(self, _count_down=0, _task_name=None, _is_mock=False):
-        Task.__init__(self, self.execute())
         self.filled_field = dict()
         if _task_name is not None:
             self.task_name = _task_name
@@ -35,17 +33,15 @@ class ServiceTask(Task):
         if _is_mock:
             self.service_version = 'Mock Version'
         assert self.binding_service is not None, f'{self.task_name} not bind to service'
+        self.task = asyncio.create_task(self.execute())
 
-    async def get_coroutine_task_result(self):
-        if self.done():
-            return self.result()
-        else:
-            return await self
+    def __await__(self):
+        return self.task.__await__()
 
     def _decorate_result(self, _result_dict, _time_cost):
         to_return_decorated_result = OrderedDict()
         to_return_decorated_result['version'] = self.service_version
-        to_return_decorated_result['detail'] = self.mock_result
+        to_return_decorated_result['detail'] = self.mock_result.copy()
         to_return_decorated_result['time_cost'] = '%0.4f ms' % (_time_cost * 1000)
         for m_key, m_value in _result_dict.items():
             to_return_decorated_result['detail'][m_key] = m_value
@@ -69,7 +65,7 @@ class ServiceTask(Task):
                 to_return_request_data[m_field_name] = m_field_value
         if len(all_dependent_task):
             all_dependent_task_results = await asyncio.gather(
-                *[_[0].get_coroutine_task_result() for _ in all_dependent_task]
+                *[_[0] for _ in all_dependent_task]
             )
             for m_result, (_, m_task_field_name, m_field_name) in zip(all_dependent_task_results, all_dependent_task):
                 m_value = m_result['detail'][m_task_field_name]
