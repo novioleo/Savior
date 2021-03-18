@@ -45,11 +45,7 @@ def text_recognize(_image_info, _box_info):
         _image_info['path']
     )
     cropped_image = get_rotated_box_roi_from_image(img, _box_info)
-    oss_handler = get_oss_handler()
-
-    oss_handler.upload_image_file('temp-data', os.path.join(get_date_string(), get_uuid_name()), cropped_image, False)
     recognize_result = text_recognize_op.execute(cropped_image)
-
     to_return_result['text'] = recognize_result['text']
     return to_return_result
 
