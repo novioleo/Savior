@@ -36,26 +36,25 @@ class GeneralDBDetect(TextDetectOperator):
             'locations': [],
         }
         h, w = _image.shape[:2]
-
-        if isinstance(self.inference_helper, TritonInferenceHelper):
-            resized_image = resize_with_specific_base(resize_with_short_side(_image, max(736, min(h, w))), 32, 32)
-            if len(resized_image.shape) == 2:
-                candidate_image = cv2.cvtColor(resized_image, cv2.COLOR_GRAY2BGR)
+        resized_image = resize_with_specific_base(resize_with_short_side(_image, max(736, min(h, w))), 32, 32)
+        if len(resized_image.shape) == 2:
+            candidate_image = cv2.cvtColor(resized_image, cv2.COLOR_GRAY2BGR)
+        else:
+            if resized_image.shape[-1] == 4:
+                candidate_image = cv2.cvtColor(resized_image, cv2.COLOR_BGRA2BGR)
             else:
-                if resized_image.shape[-1] == 4:
-                    candidate_image = cv2.cvtColor(resized_image, cv2.COLOR_BGRA2BGR)
-                else:
-                    candidate_image = resized_image
+                candidate_image = resized_image
+        if isinstance(self.inference_helper, TritonInferenceHelper):
             result = self.inference_helper.infer(_need_tensor_check=False, INPUT__0=candidate_image.astype(np.float32))
             score_map = result['OUTPUT__0']
-            boxes, scores = db_post_process(score_map, self.threshold, self.bbox_scale_ratio, self.shortest_length)
-            for m_box, m_score in zip(boxes, scores):
-                to_return_result['locations'].append({
-                    'box_info': m_box,
-                    'score': m_score,
-                })
         else:
             raise NotImplementedError(f"{self.inference_helper.type_name} helper for db not implement")
+        boxes, scores = db_post_process(score_map, self.threshold, self.bbox_scale_ratio, self.shortest_length)
+        for m_box, m_score in zip(boxes, scores):
+            to_return_result['locations'].append({
+                'box_info': m_box,
+                'score': m_score,
+            })
         return to_return_result
 
 
