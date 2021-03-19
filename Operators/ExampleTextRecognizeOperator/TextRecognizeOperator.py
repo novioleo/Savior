@@ -1,7 +1,7 @@
 from abc import ABC
 
 import numpy as np
-
+import cv2
 from Operators.DummyAlgorithm import DummyAlgorithm
 from Operators.ExampleTextRecognizeOperator.CTCDecoder import CTCLabelConverter
 from Utils.GeometryUtils import resize_with_height, center_pad_image_with_specific_base
