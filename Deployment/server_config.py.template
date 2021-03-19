@@ -74,5 +74,9 @@ else:
     WORKER_RABBITMQ_VHOST = '/'
 
 # triton related，作为只读型组件，可以不用区分生产环境与测试环境
-TRITON_URL = 'localhost'
-TRITON_PORT = 8001
+# 但是存在一台triton服务器无法将全部模型都加载完成，所以将不同体系的模型可以选择不同的triton进行加载
+# 也可以将所有模型使用一台服务器
+OCR_TRITON_URL = 'localhost'
+OCR_TRITON_PORT = 8001
+FACE_TRITON_URL = 'localhost'
+FACE_TRITON_PORT = 8001
