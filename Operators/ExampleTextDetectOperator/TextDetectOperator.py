@@ -53,7 +53,7 @@ class GeneralDBDetect(TextDetectOperator):
             self.inference_helper = inference_helper
         else:
             raise NotImplementedError(
-                f"{self.inference_config['name']} helper for retina face detect not implement")
+                f"{self.inference_config['name']} helper for db text detect not implement")
 
     def execute(self, _image):
         to_return_result = {
