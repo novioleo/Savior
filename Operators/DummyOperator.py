@@ -10,9 +10,9 @@ from Utils.misc import get_date_string
 
 
 class DummyOperator(ABC):
-    # 算法名称
+    # 原子操作名称
     name = 'dummy operator'
-    # 算法版本名称
+    # 版本名称
     __version__ = 'v1.0.20210311'
 
     def __init__(self, _is_test):
