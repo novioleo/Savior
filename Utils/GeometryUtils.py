@@ -376,6 +376,24 @@ def resize_with_short_side(_image, _target_short_side_size):
         return resize_with_height(_image, _target_short_side_size)
 
 
+def resize_with_long_side(_image, _target_long_side_size):
+    """
+    将图像最长边resize到指定长度的等比例缩放
+
+    Args:
+        _image:     图像
+        _target_long_side_size:    最长边目标长度
+
+    Returns:    缩放后的图像
+
+    """
+    h, w = _image.shape[:2]
+    if h > w:
+        return resize_with_height(_image, _target_long_side_size)
+    else:
+        return resize_with_width(_image, _target_long_side_size)
+
+
 def _compute_image_specific_base(_image, _height_base=None, _width_base=None):
     """
     计算图像的宽高在一定基数基础上的最邻近向上取整的宽高
