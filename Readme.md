@@ -24,7 +24,8 @@
 
 ### 人脸相关
 
-- [ ] [UltraFaceDetect](https://github.com/Linzaer/Ultra-Light-Fast-Generic-Face-Detector-1MB)
+- [x] [UltraFaceDetect](https://github.com/Linzaer/Ultra-Light-Fast-Generic-Face-Detector-1MB)
+- [x] [RetinaFaceDetect](https://github.com/deepinsight/insightface)
 - [ ] [FaceParsing](https://github.com/zllrunning/face-parsing.PyTorch)
 - [ ] [Landmark2D](https://github.com/deepinsight/insightface)
 - [ ] [FaceEmbedding](https://github.com/ZhaoJ9014/face.evoLVe.PyTorch)
