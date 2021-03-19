@@ -602,3 +602,24 @@ def clockwise_sort_points(_point_coordinates):
             [len(_point_coordinates)] * 2))
     return sorted(_point_coordinates, key=lambda coord: (180 + math.degrees(
         math.atan2(*tuple(map(operator.sub, coord, center_point))[::-1]))) % 360)
+
+
+def force_convert_image_to_bgr(_image):
+    """
+    将图像转换为bgr
+
+    Args:
+        _image:     待转换图像
+
+    Returns:    转换后的图像
+
+    """
+
+    if len(_image.shape) == 2:
+        candidate_image = cv2.cvtColor(_image, cv2.COLOR_GRAY2BGR)
+    else:
+        if _image.shape[-1] == 4:
+            candidate_image = cv2.cvtColor(_image, cv2.COLOR_BGRA2BGR)
+        else:
+            candidate_image = _image
+    return candidate_image
