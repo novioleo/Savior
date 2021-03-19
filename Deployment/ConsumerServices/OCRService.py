@@ -1,7 +1,7 @@
 import os
 
 from Deployment.ConsumerWorker import celery_worker_app
-from Deployment.server_config import IS_TEST, TRITON_URL, TRITON_PORT
+from Deployment.server_config import IS_TEST, OCR_TRITON_URL, OCR_TRITON_PORT
 from Operators.ExampleTextDetectOperator.TextDetectOperator import GeneralDBDetect
 from Operators.ExampleTextRecognizeOperator.TextRecognizeOperator import GeneralCRNN
 from Utils.AnnotationTools import annotate_detect_rotated_bbox_and_text_result
@@ -13,17 +13,19 @@ from Utils.misc import get_date_string, get_uuid_name
 
 # 初始化所有会用到的op
 # 初始化crnn的op
-crnn_res34_triton_helper = TritonInferenceHelper('crnn_res34', TRITON_URL, TRITON_PORT, 'CRNN_res34', 1)
-crnn_res34_triton_helper.add_image_input('INPUT__0', (32, -1, 3), '识别用的图像',
-                                         ([127.5, 127.5, 127.5], [127.5, 127.5, 127.5]))
-crnn_res34_triton_helper.add_output('OUTPUT__0', (-1, 1), '识别的max')
-crnn_res34_triton_helper.add_output('OUTPUT__1', (-1, 1), '识别的argmax的结果')
-text_recognize_op = GeneralCRNN(crnn_res34_triton_helper, 'common', IS_TEST)
+text_recognize_op = GeneralCRNN({
+        'name': 'triton',
+        'backbone_type': 'res34',
+        'triton_url': OCR_TRITON_URL,
+        'triton_port': OCR_TRITON_PORT
+}, 'common', IS_TEST)
 # 初始化db的op
-db_res18 = TritonInferenceHelper('DB_res18', TRITON_URL, TRITON_PORT, 'DB_res18', 1)
-db_res18.add_image_input('INPUT__0', (-1, -1, 3), '识别用的图像', ([123.675, 116.28, 103.53], [58.395, 57.12, 57.375]))
-db_res18.add_output('OUTPUT__0', (1, -1, -1), 'detect score')
-db_res18_op = GeneralDBDetect(db_res18, True, 0.3, 5, 5)
+db_res18_op = GeneralDBDetect({
+        'name': 'triton',
+        'backbone_type': 'res18',
+        'triton_url': OCR_TRITON_URL,
+        'triton_port': OCR_TRITON_PORT
+}, True, 0.3, 5, 5)
 
 
 @celery_worker_app.task(name="ConsumerServices.OCRService.text_recognize")
