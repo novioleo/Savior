@@ -1,27 +1,21 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 
 import cv2
 import numpy as np
 
-from Operators.DummyAlgorithm import DummyAlgorithm
+from Operators.DummyAlgorithmWithModel import DummyAlgorithmWithModel
 from Operators.ExampleFaceDetectOperator.PostProcessUtils import get_anchors, regress_boxes
 from Utils.GeometryUtils import center_pad_image_with_specific_base, \
     nms, resize_with_long_side, force_convert_image_to_bgr
 from Utils.InferenceHelpers.BaseInferenceHelper import TritonInferenceHelper
 
 
-class FaceDetectOperator(DummyAlgorithm, ABC):
+class FaceDetectOperator(DummyAlgorithmWithModel, ABC):
     name = 'FaceDetect'
     __version__ = 'v1.0.20210319'
 
     def __init__(self, _inference_config, _is_test):
-        super().__init__(_is_test)
-        self._inference_config = _inference_config
-        self.inference_helper = self.get_inference_helper()
-
-    @abstractmethod
-    def get_inference_helper(self):
-        pass
+        super().__init__(_inference_config, _is_test)
 
 
 class GeneralUltraLightFaceDetect(FaceDetectOperator):
@@ -39,19 +33,19 @@ class GeneralUltraLightFaceDetect(FaceDetectOperator):
         self.candidate_image_size = (320, 240)
 
     def get_inference_helper(self):
-        if self._inference_config['name'] == 'triton':
+        if self.inference_config['name'] == 'triton':
             inference_helper = TritonInferenceHelper('UltraLightFaceDetect',
-                                                     self._inference_config['triton_url'],
-                                                     self._inference_config['triton_port'],
+                                                     self.inference_config['triton_url'],
+                                                     self.inference_config['triton_port'],
                                                      'UltraLightFaceDetect', 1)
             inference_helper.add_image_input('INPUT__0', (320, 240, 3), '识别用的图像',
                                              ([127, 127, 127], [128, 128, 128]))
             inference_helper.add_output('OUTPUT__0', (1, 4420, 2), 'detect score')
             inference_helper.add_output('OUTPUT__1', (1, 4420, 4), 'box predict')
-            return inference_helper
+            self.inference_helper = inference_helper
         else:
             raise NotImplementedError(
-                f"{self._inference_config['name']} helper for ultra light face detect not implement")
+                f"{self.inference_config['name']} helper for ultra light face detect not implement")
 
     def execute(self, _image):
         to_return_result = {
@@ -116,20 +110,20 @@ class GeneralRetinaFaceDetect(FaceDetectOperator):
         self.candidate_image_size = (512, 512)
 
     def get_inference_helper(self):
-        if self._inference_config['name'] == 'triton':
+        if self.inference_config['name'] == 'triton':
             inference_helper = TritonInferenceHelper('RetinaFace',
-                                                     self._inference_config['triton_url'],
-                                                     self._inference_config['triton_port'],
+                                                     self.inference_config['triton_url'],
+                                                     self.inference_config['triton_port'],
                                                      'RetinaFace', 1)
             inference_helper.add_image_input('INPUT__0', (512, 512, 3), '识别用的图像',
                                              ([0, 0, 0], [1, 1, 1]))
             inference_helper.add_output('OUTPUT__0', (1, 16128, 2), 'face classification')
             inference_helper.add_output('OUTPUT__1', (1, 16128, 4), 'box predict')
             inference_helper.add_output('OUTPUT__2', (1, 16128, 10), 'landmark')
-            return inference_helper
+            self.inference_helper = inference_helper
         else:
             raise NotImplementedError(
-                f"{self._inference_config['name']} helper for retina face detect not implement")
+                f"{self.inference_config['name']} helper for retina face detect not implement")
 
     def execute(self, _image):
         to_return_result = {
