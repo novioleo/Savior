@@ -174,6 +174,7 @@ class TritonInferenceHelper(CustomInferenceHelper, ABC):
         self.model_version = str(_model_version)
 
         try:
+            # 新版本的triton client的send和receive的length都超过了1GB，足够霍霍了
             # self.triton_client = CustomInferenceServerClient(url=self.target_url)
             self.triton_client = grpcclient.InferenceServerClient(url=self.target_url)
         except Exception as e:
@@ -192,7 +193,7 @@ class TritonInferenceHelper(CustomInferenceHelper, ABC):
             if not (isinstance(m_tensor, np.ndarray) and m_tensor.dtype.name in self.numpy_data_type_mapper):
                 raise InferenceTensorCheckFailException(f'tensor {m_name} is available numpy array')
             if _need_tensor_check:
-                check_status, check_result = m_tensor_info.tensor_check(m_tensor, 3 * 10 * 1024 * 1024)
+                check_status, check_result = m_tensor_info.tensor_check(m_tensor)
                 if not check_status:
                     raise InferenceTensorCheckFailException(check_result)
             m_normalized_tensor = m_tensor_info.normalize(m_tensor, _tensor_format='chw').astype(m_tensor.dtype)
