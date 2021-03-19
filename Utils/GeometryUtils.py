@@ -430,6 +430,7 @@ def center_pad_image_with_specific_base(_image, _height_base=None, _width_base=N
         _height_base:   高度的基
         _width_base:    宽度的基
         _pad_value:     pad的填充值
+        _output_pad_ratio:  是否输出pad（width_pad,height_pad）的占比，方便后面在计算的时候减去对应的值
 
     Returns:    缩放后的图像
 
@@ -442,7 +443,10 @@ def center_pad_image_with_specific_base(_image, _height_base=None, _width_base=N
     top_margin = (target_h - h) // 2
     bottom_margin = top_margin + target_h
     full_size_image[top_margin:bottom_margin, left_margin:right_margin, ...] = _image
-    return full_size_image
+    if not _output_pad_ratio:
+        return full_size_image
+    else:
+        return full_size_image, (left_margin / target_w, top_margin / target_h)
 
 
 def get_cropped_image(_image, _location):
