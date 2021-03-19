@@ -58,8 +58,10 @@ class ImageTensorInfo(TensorInfo):
 class CustomInferenceHelper(ABC):
     name = 'default'
     type_name = 'default'
-    all_inputs = OrderedDict()
-    all_outputs = OrderedDict()
+
+    def __init__(self):
+        self.all_inputs = OrderedDict()
+        self.all_outputs = OrderedDict()
 
     def add_input(self, _input_name, _input_shape, _input_description):
         self.all_inputs[_input_name] = TensorInfo(_input_name, _input_shape, _input_description)
@@ -133,6 +135,7 @@ class DummyInferenceHelper(CustomInferenceHelper, ABC):
 
 class NCNNInferenceHelper(CustomInferenceHelper, ABC):
     def __init__(self, _algorithm_name):
+        super().__init__()
         self.name = _algorithm_name
         self.type_name = 'ncnn'
         self.handler = None
@@ -162,11 +165,8 @@ class TritonInferenceHelper(CustomInferenceHelper, ABC):
         np.int32.__name__: "INT32",
     }
 
-    def __init__(self,
-                 _algorithm_name,
-                 _server_url, _server_port,
-                 _model_name, _model_version,
-                 ):
+    def __init__(self, _algorithm_name, _server_url, _server_port, _model_name, _model_version):
+        super().__init__()
         self.name = _algorithm_name
         self.type_name = 'triton'
         self.target_url = '%s:%s' % (_server_url, _server_port)
