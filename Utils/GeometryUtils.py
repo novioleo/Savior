@@ -420,7 +420,8 @@ def resize_with_specific_base(_image, _height_base=None, _width_base=None):
     return cv2.resize(_image, (target_w, target_h))
 
 
-def center_pad_image_with_specific_base(_image, _height_base=None, _width_base=None, _pad_value=0):
+def center_pad_image_with_specific_base(_image, _height_base=None, _width_base=None, _pad_value=0,
+                                        _output_pad_ratio=False):
     """
     将图像中心填充到特定基的倍数的高宽的图像中
 
@@ -522,7 +523,10 @@ def get_rotated_box_roi_from_image(_image, _rotated_box):
     to_rotate_degree = _rotated_box['degree']
     box_center = (_rotated_box['center_x'] * w, _rotated_box['center_y'] * h)
     half_box_height, half_box_width = _rotated_box['box_height'] / 2, _rotated_box['box_width'] / 2
-    rotated_image, _ = rotate_degree_img(_image, to_rotate_degree, box_center, _with_expand=False)
+    if to_rotate_degree != 0:
+        rotated_image, _ = rotate_degree_img(_image, to_rotate_degree, box_center, _with_expand=False)
+    else:
+        rotated_image = _image.copy()
     to_crop_location = {
         'top_left_x': _rotated_box['center_x'] - half_box_width,
         'top_left_y': _rotated_box['center_y'] - half_box_height,
