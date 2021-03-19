@@ -441,7 +441,7 @@ def center_pad_image_with_specific_base(_image, _height_base=None, _width_base=N
     left_margin = (target_w - w) // 2
     right_margin = left_margin + w
     top_margin = (target_h - h) // 2
-    bottom_margin = top_margin + target_h
+    bottom_margin = top_margin + h
     full_size_image[top_margin:bottom_margin, left_margin:right_margin, ...] = _image
     if not _output_pad_ratio:
         return full_size_image
