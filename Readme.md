@@ -10,6 +10,10 @@
 
 `savior`是一个能够进行快速集成算法模块并支持高性能部署的轻量开发框架。能够帮助将团队进行快速想法验证（PoC），避免重复的去github上找模型然后复现模型；能够帮助团队将功能进行流程拆解，很方便的提高分布式执行效率；能够有效减少代码冗余，减少不必要负担。
 
+> workflow的已经做好的轮子很多，例如(perfect)[https://github.com/PrefectHQ/prefect/tree/master/src/prefect]、 [polyaxon](https://github.com/polyaxon/polyaxon)、 [dagster](https://github.com/dagster-io/dagster)等。 之所以开发一个新的，主要原因是那些框架都太heavy了，对于大部分用户来说没法直接白嫖。
+
+这个项目的核心目的就是能够减少大家的重复性开发，能够把绝大部分能够直接白嫖的东西放在框架里面，然后大家专注于自己的业务属性上，提升大家的工作效率。
+
 ## 特性
 
 1. 弹性伸缩：用户可以根据目前的请求量，自定义配置机器数。方便项目上量，并且保证服务器资源吃满（支持K8S）。
