@@ -37,12 +37,23 @@ def annotate_bounding_box_on_image(_img, _boxes, _specific_color, _with_index=Fa
     return to_return_img
 
 
-def annotate_circle_on_image(_img, _points, _specific_color, _radius=8, _with_index=False, _thickness=2):
-    to_return_img = _img.copy()
+def annotate_circle_on_image(_to_annotate_image, _points, _specific_color, _radius=8, _thickness=2):
+    """
+    在图中标注多个圆
+
+    Args:
+        _to_annotate_image:     待标注图像
+        _points:    待标注圆的中心（同opencv配置）
+        _specific_color:        圆的颜色（同opencv配置）
+        _radius:    圆的半径（同opencv配置）
+        _thickness: 圆的厚度（同opencv配置）
+
+    """
+    h, w = _to_annotate_image.shape[:2]
     if len(_points) > 0:
         for m_point in _points:
-            cv2.circle(to_return_img, (m_point[0], m_point[1]), _radius, _specific_color, thickness=_thickness)
-    return to_return_img
+            cv2.circle(_to_annotate_image, (int(m_point[0] * w), int(m_point[1] * h)), _radius, _specific_color,
+                       thickness=_thickness)
 
 
 def annotate_polygon_on_image(_img, _polygon, _specific_color, _with_index=False, _is_transparent=True):
@@ -189,7 +200,17 @@ def annotation_vertical_height(_img, _x, _start_y, _end_y, _line_color, _text_co
     return annotation_multi_vertical_height(_img, _x, [_start_y, _end_y], _line_color, _text_color, [_text, ])
 
 
-def draw_rotated_bbox(_to_draw_image, _rotated_box, _color, _thickness):
+def draw_rotated_bbox(_to_draw_image: np.ndarray, _rotated_box: dict, _color: tuple, _thickness: int):
+    """
+    在图中标注旋转矩形
+
+    Args:
+        _to_draw_image: 待标注图像
+        _rotated_box:   待标注的旋转矩形（包含center_x,center_y,box_width,box_height,degree）
+        _color:     标注颜色（同opencv配置）
+        _thickness:     边框粗细（同opencv配置）
+
+    """
     rotated_points = get_coordinates_of_rotated_box(_to_draw_image, _rotated_box)
     cv2.polylines(_to_draw_image, [rotated_points, ], True, _color, _thickness)
 
