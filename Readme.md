@@ -32,7 +32,7 @@
 - [x] [RetinaFaceDetect](https://github.com/deepinsight/insightface)
 - [ ] [FaceParsing](https://github.com/zllrunning/face-parsing.PyTorch)
 - [x] [Landmark2D](https://github.com/deepinsight/insightface)
-- [ ] [FaceEmbedding](https://github.com/ZhaoJ9014/face.evoLVe.PyTorch)
+- [x] [FaceEmbedding](https://github.com/ZhaoJ9014/face.evoLVe.PyTorch)
 
 ### OCR相关
 - [x] [DB](https://github.com/WenmuZhou/PytorchOCR)
