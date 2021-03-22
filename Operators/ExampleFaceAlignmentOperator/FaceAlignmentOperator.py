@@ -76,18 +76,26 @@ class GeneralLandmark106p(FaceAlignmentOperator):
 if __name__ == '__main__':
     from argparse import ArgumentParser
     from Utils.AnnotationTools import annotate_circle_on_image
+    from Operators.ExampleFaceDetectOperator.FaceDetectOperator import GeneralUltraLightFaceDetect
+    from Utils.GeometryUtils import get_rotated_box_roi_from_image
 
     ag = ArgumentParser('Face Alignment Example')
     ag.add_argument('-i', '--image_path', dest='image_path', type=str, required=True, help='本地图像路径')
     ag.add_argument('-u', '--triton_url', dest='triton_url', type=str, required=True, help='triton url')
     ag.add_argument('-p', '--triton_port', dest='triton_port', type=int, default=8001, help='triton grpc 端口')
     args = ag.parse_args()
+    # 假设图中只有一个人头
     img = cv2.imread(args.image_path)
     landmark106p_detect_handler = GeneralLandmark106p({
         'name': 'triton',
         'triton_url': args.triton_url,
         'triton_port': args.triton_port
     }, True)
+    ultra_light_face_detect_handler = GeneralUltraLightFaceDetect({
+        'name': 'triton',
+        'triton_url': args.triton_url,
+        'triton_port': args.triton_port
+    }, True, 0.7, 0.5)
     landmark106p_result = landmark106p_detect_handler.execute(img)
     landmark106p_result_image = img.copy()
     landmark106p_all_points = [(x, y) for x, y in
@@ -96,5 +104,17 @@ if __name__ == '__main__':
                                ]
     annotate_circle_on_image(landmark106p_result_image, landmark106p_all_points, (0, 255, 0), 3, -1)
     cv2.imshow('landmark106p_result_image', landmark106p_result_image)
+    face_detect_result = ultra_light_face_detect_handler.execute(img)
+    face_bbox = face_detect_result['locations'][0]['box_info']
+    cropped_face_region = get_rotated_box_roi_from_image(img, face_bbox, 1.25)
+    landmark106p_with_bbox_result = landmark106p_detect_handler.execute(cropped_face_region)
+    landmark106p_with_bbox_result_image = cropped_face_region.copy()
+    landmark106p_with_bbox_result_all_points = [(x, y) for x, y in
+                                                zip(landmark106p_with_bbox_result['x_locations'],
+                                                    landmark106p_with_bbox_result['y_locations'])
+                                                ]
+    annotate_circle_on_image(landmark106p_with_bbox_result_image, landmark106p_with_bbox_result_all_points,
+                             (255, 0, 255), 3, -1)
+    cv2.imshow('landmark106p_with_bbox_result_image', landmark106p_with_bbox_result_image)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
