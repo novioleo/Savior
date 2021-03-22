@@ -525,8 +525,6 @@ def get_min_area_bbox(_image, _contour, _scale_ratio=1.0):
         'box_height': bbox_height / h,
         'box_width': bbox_width / w,
     }
-    # if abs(to_rotate_degree) > 10:
-    #     cv2.waitKey(0)
     return to_return_rotated_box
 
 
