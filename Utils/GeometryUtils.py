@@ -528,13 +528,14 @@ def get_min_area_bbox(_image, _contour, _scale_ratio=1.0):
     return to_return_rotated_box
 
 
-def get_rotated_box_roi_from_image(_image, _rotated_box):
+def get_rotated_box_roi_from_image(_image, _rotated_box, _scale_ratio=1.0):
     """
     在图像中抠取一个旋转的box的roi
 
     Args:
         _image:     待抠取图像
         _rotated_box:   旋转的box
+        _scale_ratio:   缩放比例
 
     Returns:    抠取的roi
 
@@ -542,7 +543,8 @@ def get_rotated_box_roi_from_image(_image, _rotated_box):
     h, w = _image.shape[:2]
     to_rotate_degree = _rotated_box['degree']
     box_center = (_rotated_box['center_x'] * w, _rotated_box['center_y'] * h)
-    half_box_height, half_box_width = _rotated_box['box_height'] / 2, _rotated_box['box_width'] / 2
+    half_box_height, half_box_width = \
+        _rotated_box['box_height'] * _scale_ratio / 2, _rotated_box['box_width'] * _scale_ratio / 2
     if to_rotate_degree != 0:
         rotated_image, _ = rotate_degree_img(_image, to_rotate_degree, box_center, _with_expand=False)
     else:
