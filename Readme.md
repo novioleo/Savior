@@ -31,12 +31,14 @@
 - [x] [UltraFaceDetect](https://github.com/Linzaer/Ultra-Light-Fast-Generic-Face-Detector-1MB)
 - [x] [RetinaFaceDetect](https://github.com/deepinsight/insightface)
 - [ ] [FaceParsing](https://github.com/zllrunning/face-parsing.PyTorch)
-- [ ] [Landmark2D](https://github.com/deepinsight/insightface)
+- [x] [Landmark2D](https://github.com/deepinsight/insightface)
 - [ ] [FaceEmbedding](https://github.com/ZhaoJ9014/face.evoLVe.PyTorch)
 
 ### OCR相关
 - [x] [DB](https://github.com/WenmuZhou/PytorchOCR)
 - [x] [CRNN](https://github.com/WenmuZhou/PytorchOCR)
+
+### 图像搜索
 
 官方已适配模型下载地址（不定时更新）：
 
@@ -61,7 +63,7 @@
 
 ### OCR相关
 
-[自然场景下OCRocr_interface/general_ocr](./Docs/ResultImageGallery/general_ocr接口结果展示图.webp)
+[自然场景下OCR](./Docs/ResultImageGallery/general_ocr接口结果展示图.webp)
 
 ## 如何在自有项目下开发？
 
