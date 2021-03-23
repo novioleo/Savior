@@ -76,7 +76,7 @@ class GeneralLandmark106p(FaceAlignmentOperator):
 if __name__ == '__main__':
     from argparse import ArgumentParser
     from Utils.AnnotationTools import annotate_circle_on_image
-    from Operators.ExampleFaceDetectOperator.FaceDetectOperator import GeneralUltraLightFaceDetect
+    from Operators.ExampleFaceDetectOperator import GeneralUltraLightFaceDetect
     from Utils.GeometryUtils import get_rotated_box_roi_from_image
 
     ag = ArgumentParser('Face Alignment Example')

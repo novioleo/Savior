@@ -82,8 +82,8 @@ class AsiaFaceEmbedding(FaceEmbeddingOperator):
 if __name__ == '__main__':
     from argparse import ArgumentParser
     from Utils.GeometryUtils import get_rotated_box_roi_from_image, center_pad_image_with_specific_base
-    from Operators.ExampleFaceDetectOperator.FaceDetectOperator import GeneralUltraLightFaceDetect
-    from Operators.ExampleFaceAlignmentOperator.FaceAlignmentOperator import GeneralLandmark106p
+    from Operators.ExampleFaceDetectOperator import GeneralUltraLightFaceDetect
+    from Operators.ExampleFaceAlignmentOperator import GeneralLandmark106p
     from sklearn.metrics import pairwise_distances
 
     ag = ArgumentParser('Face Embedding Example')
