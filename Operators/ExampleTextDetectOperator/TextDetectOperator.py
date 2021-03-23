@@ -6,7 +6,7 @@ import numpy as np
 from Operators.DummyAlgorithmWithModel import DummyAlgorithmWithModel
 from Operators.ExampleTextDetectOperator.PostProcess import db_post_process
 from Utils.GeometryUtils import resize_with_short_side, resize_with_specific_base
-from Utils.InferenceHelpers.BaseInferenceHelper import TritonInferenceHelper
+from Utils.InferenceHelpers import TritonInferenceHelper
 
 
 class TextDetectOperator(DummyAlgorithmWithModel, ABC):

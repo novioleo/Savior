@@ -2,7 +2,7 @@ from abc import ABC
 import numpy as np
 import cv2
 from Operators.DummyAlgorithmWithModel import DummyAlgorithmWithModel
-from Utils.InferenceHelpers.BaseInferenceHelper import TritonInferenceHelper
+from Utils.InferenceHelpers import TritonInferenceHelper
 
 
 class FaceEmbeddingOperator(DummyAlgorithmWithModel, ABC):

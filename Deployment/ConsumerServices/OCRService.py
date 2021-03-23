@@ -6,7 +6,6 @@ from Operators.ExampleTextDetectOperator.TextDetectOperator import GeneralDBDete
 from Operators.ExampleTextRecognizeOperator.TextRecognizeOperator import GeneralCRNN
 from Utils.AnnotationTools import annotate_detect_rotated_bbox_and_text_result
 from Utils.GeometryUtils import get_rotated_box_roi_from_image
-from Utils.InferenceHelpers.BaseInferenceHelper import TritonInferenceHelper
 from Utils.ServiceUtils import ServiceTask
 from Utils.Storage import get_oss_handler
 from Utils.misc import get_date_string, get_uuid_name

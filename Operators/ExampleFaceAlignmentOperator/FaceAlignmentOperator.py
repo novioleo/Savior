@@ -6,7 +6,7 @@ import numpy as np
 from Operators.DummyAlgorithmWithModel import DummyAlgorithmWithModel
 from Utils.GeometryUtils import center_pad_image_with_specific_base, \
     resize_with_long_side, force_convert_image_to_bgr
-from Utils.InferenceHelpers.BaseInferenceHelper import TritonInferenceHelper
+from Utils.InferenceHelpers import TritonInferenceHelper
 
 
 class FaceAlignmentOperator(DummyAlgorithmWithModel, ABC):

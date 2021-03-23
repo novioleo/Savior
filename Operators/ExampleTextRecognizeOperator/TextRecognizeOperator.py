@@ -6,7 +6,7 @@ import numpy as np
 from Operators.DummyAlgorithmWithModel import DummyAlgorithmWithModel
 from Operators.ExampleTextRecognizeOperator.CTCDecoder import CTCLabelConverter
 from Utils.GeometryUtils import resize_with_height, center_pad_image_with_specific_base
-from Utils.InferenceHelpers.BaseInferenceHelper import TritonInferenceHelper
+from Utils.InferenceHelpers import TritonInferenceHelper
 
 
 class TextRecognizeOperator(DummyAlgorithmWithModel, ABC):

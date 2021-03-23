@@ -7,7 +7,7 @@ from Operators.DummyAlgorithmWithModel import DummyAlgorithmWithModel
 from Operators.ExampleFaceDetectOperator.PostProcessUtils import get_anchors, regress_boxes
 from Utils.GeometryUtils import center_pad_image_with_specific_base, \
     nms, resize_with_long_side, force_convert_image_to_bgr
-from Utils.InferenceHelpers.BaseInferenceHelper import TritonInferenceHelper
+from Utils.InferenceHelpers import TritonInferenceHelper
 
 
 class FaceDetectOperator(DummyAlgorithmWithModel, ABC):
