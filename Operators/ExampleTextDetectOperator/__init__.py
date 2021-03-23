@@ -1,0 +1,1 @@
+from Operators.ExampleTextDetectOperator.TextDetectOperator import GeneralDBDetect

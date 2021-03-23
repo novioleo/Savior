@@ -2,8 +2,8 @@ import os
 
 from Deployment.ConsumerWorker import celery_worker_app
 from Deployment.server_config import IS_TEST, OCR_TRITON_URL, OCR_TRITON_PORT
-from Operators.ExampleTextDetectOperator.TextDetectOperator import GeneralDBDetect
-from Operators.ExampleTextRecognizeOperator.TextRecognizeOperator import GeneralCRNN
+from Operators.ExampleTextDetectOperator import GeneralDBDetect
+from Operators.ExampleTextRecognizeOperator import GeneralCRNN
 from Utils.AnnotationTools import annotate_detect_rotated_bbox_and_text_result
 from Utils.GeometryUtils import get_rotated_box_roi_from_image
 from Utils.ServiceUtils import ServiceTask

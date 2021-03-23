@@ -1,0 +1,1 @@
+from Operators.ExampleDownloadOperator.DownloadOperator import ImageDownloadOperator

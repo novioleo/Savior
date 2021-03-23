@@ -1,0 +1,1 @@
+from Operators.ExampleImageEmbeddingOperator.FaceEmbeddingOperator import AsiaFaceEmbedding

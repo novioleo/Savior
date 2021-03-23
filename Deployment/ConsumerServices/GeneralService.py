@@ -1,6 +1,6 @@
 from Deployment.ConsumerWorker import celery_worker_app
 from Deployment.server_config import IS_TEST
-from Operators.ExampleImageDownloadOperator.ImageDownloadOperator import ImageDownloadOperator
+from Operators.ExampleDownloadOperator import ImageDownloadOperator
 from Utils.ServiceUtils import ServiceTask
 from Utils.Storage import get_oss_handler
 
