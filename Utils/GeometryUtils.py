@@ -287,6 +287,78 @@ def rotate_points(_points, _degree=0, _center=(0, 0)):
     return np.squeeze((rotate_matrix @ (points.T - center.T) + center.T).T)
 
 
+def get_expand_rotated_points(_image, _center, _rotate_degree):
+    """
+    图像使用扩张模式旋转之后中心点的位置就会发生变化
+
+    Args:
+        _image: 图像
+        _center:    旋转中心点
+        _rotate_degree: 旋转角度
+
+    Returns:    旋转后的原始的四个点(↖↗↘↙的顺序)，旋转后的中心点
+
+    """
+    h, w = _image.shape[:2]
+    points = np.array([
+        [0, 0],
+        [w - 1, 0],
+        [w - 1, h - 1],
+        [0, h - 1],
+        _center
+    ])
+    rotated_points = rotate_points(points, _rotate_degree, _center)
+    offset_x = np.min(rotated_points[:, 0])
+    offset_x = -offset_x if offset_x < 0 else 0
+    offset_y = np.min(rotated_points[:, 1])
+    offset_y = -offset_y if offset_y < 0 else 0
+    new_points = rotated_points + [offset_x, offset_y]
+    return new_points[:4], new_points[4]
+
+
+def rotate_degree_img(_img, _degree, _center=None, _with_expand=True, _mask=None):
+    """
+    逆时针旋转图像
+
+    Args:
+        _img:   待旋转图像
+        _degree:    角度
+        _center:    旋转中心，默认为图像几何中心
+        _with_expand:   是否需要调整图像大小，保证所有内容都不丢失
+        _mask:      待旋转的mask，可为None
+
+    Returns:    旋转后的图像，旋转后的mask
+
+    """
+    if _mask is not None:
+        assert _img.shape == _mask.shape[:2], 'mask and shape is not same'
+    h, w = _img.shape[:2]
+    if _center is None:
+        center = (w / 2, h / 2)
+    else:
+        center = _center
+    if _with_expand:
+        four_corner_points, _ = get_expand_rotated_points(_img, center, _degree)
+        new_width = int(np.max(four_corner_points[:, 0]))
+        new_height = int(np.max(four_corner_points[:, 1]))
+        current_location = np.array([
+            [0, 0],
+            [w, 0],
+            [w, h],
+        ], dtype=np.float32)
+        rotate_matrix = cv2.getAffineTransform(current_location, four_corner_points[:3].astype(np.float32))
+    else:
+        rotate_matrix = cv2.getRotationMatrix2D(center, _degree, 1)
+        new_width = w
+        new_height = h
+    rotated_img = cv2.warpAffine(_img, rotate_matrix, (new_width, new_height), flags=cv2.INTER_LINEAR)
+    if _mask is not None:
+        rotated_mask = cv2.warpAffine(_mask, rotate_matrix, (new_width, new_height), flags=cv2.INTER_NEAREST)
+    else:
+        rotated_mask = None
+    return rotated_img, rotated_mask
+
+
 def resize_convex_hull_polygon(_convex_hull_points, _resize_ratio):
     """
     对凸包的多边形进行缩放
