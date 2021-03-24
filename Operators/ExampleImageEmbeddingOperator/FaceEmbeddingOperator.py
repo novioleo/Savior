@@ -3,6 +3,7 @@ import numpy as np
 import cv2
 from Operators.DummyAlgorithmWithModel import DummyAlgorithmWithModel
 from Utils.InferenceHelpers import TritonInferenceHelper
+from Utils.GeometryUtils import face_align
 
 
 class FaceEmbeddingOperator(DummyAlgorithmWithModel, ABC):
@@ -11,22 +12,6 @@ class FaceEmbeddingOperator(DummyAlgorithmWithModel, ABC):
 
     def __init__(self, _inference_config, _is_test):
         super().__init__(_inference_config, _is_test)
-        self.reference_facial_points = np.array([
-            [30.29459953, 51.69630051],
-            [65.53179932, 51.50139999],
-            [48.02519989, 71.73660278],
-            [33.54930115, 92.3655014],
-            [62.72990036, 92.20410156]
-        ], dtype=np.float32)
-
-    def face_align(self, _cropped_image, _landmark):
-        h, w = _cropped_image.shape[:2]
-        remapped_landmark = _landmark.copy()
-        remapped_landmark[:, 0] *= w
-        remapped_landmark[:, 1] *= h
-        transform_matrix = cv2.estimateRigidTransform(remapped_landmark, self.reference_facial_points, True)
-        face_img = cv2.warpAffine(_cropped_image, transform_matrix, (96, 112))
-        return face_img
 
 
 class AsiaFaceEmbedding(FaceEmbeddingOperator):
@@ -67,7 +52,7 @@ class AsiaFaceEmbedding(FaceEmbeddingOperator):
         landmark_x = _landmark_info['x_locations'][candidate_index]
         landmark_y = _landmark_info['y_locations'][candidate_index]
         landmark = np.stack([landmark_x, landmark_y], axis=1)
-        aligned_face = self.face_align(_image, landmark)
+        aligned_face = face_align(_image, landmark, (96, 112))
         padded_face = center_pad_image_with_specific_base(aligned_face, 112, 112, 0, False)
         if isinstance(self.inference_helper, TritonInferenceHelper):
             result = self.inference_helper.infer(_need_tensor_check=False, INPUT__0=padded_face.astype(np.float32))
@@ -122,8 +107,8 @@ if __name__ == '__main__':
         all_features.append(m_embedding_result['feature_vector'])
     all_features_np = np.array(all_features, dtype=np.float32)
     distance_matrix = pairwise_distances(all_features_np, metric='euclidean')
-    print('anchor-positive distance:',distance_matrix[0][1])
-    print('anchor-negative distance:',distance_matrix[0][2])
-    print('positive-negative distance:',distance_matrix[1][2])
+    print('anchor-positive distance:', distance_matrix[0][1])
+    print('anchor-negative distance:', distance_matrix[0][2])
+    print('positive-negative distance:', distance_matrix[1][2])
     cv2.waitKey(0)
     cv2.destroyAllWindows()
