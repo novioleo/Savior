@@ -21,6 +21,7 @@ class GeneralLandmark106p(FaceAlignmentOperator):
     """
     这个模型超级轻量级，速度快
     人脸轮廓效果会差点
+    针对于小角度（±40°以内）的人脸，landmark效果很好。角度大了，结果不可信！
     """
     name = '自然场景下的基于坐标点回归的106点landmark检测'
     __version__ = 'v1.0.20210322'
