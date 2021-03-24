@@ -222,51 +222,6 @@ def nms(_rectangles, _scores, _nms_threshold):
     return keep
 
 
-def rotate_degree_img(_img, _degree, _center=None, _with_expand=True, _mask=None):
-    """
-    逆时针旋转图像
-
-    Args:
-        _img:   待旋转图像
-        _degree:    角度
-        _center:    旋转中心，默认为图像几何中心
-        _with_expand:   是否需要调整图像大小，保证所有内容都不丢失
-        _mask:      待旋转的mask，可为None
-
-    Returns:    旋转后的图像，旋转后的mask
-
-    """
-    if _mask is not None:
-        assert _img.shape == _mask.shape[:2], 'mask and shape is not same'
-    h, w = _img.shape[:2]
-    if _center is None:
-        center = (w / 2, h / 2)
-    else:
-        center = _center
-    rotate_matrix = cv2.getRotationMatrix2D(center, _degree, 1)
-    top_right = np.array((w - 1, 0)) - np.array(center)
-    bottom_right = np.array((w - 1, h - 1)) - np.array(center)
-    top_right_after_rotate = rotate_matrix[0:2, 0:2].dot(top_right)
-    bottom_right_after_rotate = rotate_matrix[0:2, 0:2].dot(bottom_right)
-    if _with_expand:
-        new_width = max(int(abs(bottom_right_after_rotate[0] * 2) + 0.5), int(abs(top_right_after_rotate[0] * 2) + 0.5))
-        new_height = max(int(abs(top_right_after_rotate[1] * 2) + 0.5),
-                         int(abs(bottom_right_after_rotate[1] * 2) + 0.5))
-    else:
-        new_width = w
-        new_height = h
-    offset_x = (new_width - w) / 2
-    offset_y = (new_height - h) / 2
-    rotate_matrix[0, 2] += offset_x
-    rotate_matrix[1, 2] += offset_y
-    rotated_img = cv2.warpAffine(_img, rotate_matrix, (new_width, new_height))
-    if _mask is not None:
-        rotated_mask = cv2.warpAffine(_mask, rotate_matrix, (new_width, new_height), flags=cv2.INTER_NEAREST)
-    else:
-        rotated_mask = None
-    return rotated_img, rotated_mask
-
-
 def rotate_points(_points, _degree=0, _center=(0, 0)):
     """
     逆时针绕着一个点旋转点
@@ -697,7 +652,7 @@ def force_convert_image_to_bgr(_image):
     return candidate_image
 
 
-def face_align(_image, _landmark,_target_shape):
+def face_align(_image, _landmark, _target_shape):
     """
     人脸对齐
 
@@ -717,8 +672,8 @@ def face_align(_image, _landmark,_target_shape):
         [0.6534365, 0.8232509]
     ], dtype=np.float32)
     target_facial_points = reference_facial_points.copy()
-    target_facial_points[:,0] *= _target_shape[0]
-    target_facial_points[:,1] *= _target_shape[1]
+    target_facial_points[:, 0] *= _target_shape[0]
+    target_facial_points[:, 1] *= _target_shape[1]
     h, w = _image.shape[:2]
     remapped_landmark = _landmark.copy()
     remapped_landmark[:, 0] *= w
@@ -726,3 +681,65 @@ def face_align(_image, _landmark,_target_shape):
     transform_matrix = cv2.estimateRigidTransform(remapped_landmark, target_facial_points, True)
     face_img = cv2.warpAffine(_image, transform_matrix, _target_shape)
     return face_img
+
+
+def correct_face_orientation(_image, _landmark_info):
+    """
+    校正人脸的方向
+
+    Args:
+        _image: 人脸照片
+        _landmark_info:     landmark信息
+
+    Returns:    旋转后的人脸照片，以及反变化的回调函数
+
+    """
+    h, w = _image.shape[:2]
+    reference_facial_points = np.array([
+        [30.29459953, 51.69630003],
+        [65.53179932, 51.50139904],
+        [48.02519989, 71.73660183],
+    ], dtype=np.float32)
+    if _landmark_info['points_count'] == 5:
+        points_index = [0, 1, 2]
+    elif _landmark_info['points_count'] == 106:
+        points_index = [38, 88, 86]
+    else:
+        raise NotImplementedError(f"Cannot correct face with {_landmark_info['points_count']} landmark points now")
+    landmark_x = _landmark_info['x_locations'][points_index]
+    landmark_y = _landmark_info['y_locations'][points_index]
+
+    landmark = np.stack([landmark_x, landmark_y], axis=1)
+    transform_matrix = cv2.getAffineTransform((landmark * [96.0, 112.0]).astype(np.float32), reference_facial_points)
+    center_point = (landmark[-1] * (w, h)).astype(np.float32)
+    degree = math.degrees(math.atan(transform_matrix[0, 0] / transform_matrix[0, 1]))
+    assert -90 <= degree <= 90, 'the face correct angle must be between -90 degree and 90 degree'
+    if degree > 0:
+        rotation_degree = degree - 90
+    else:
+        rotation_degree = degree + 90
+    rotated_image, _ = rotate_degree_img(_image, rotation_degree, (center_point[0], center_point[1]), True)
+    rotated_points, rotated_center_point = get_expand_rotated_points(_image, (center_point[0], center_point[1]),
+                                                                     rotation_degree)
+    original_h, original_w = _image.shape[:2]
+    transform_back_matrix = cv2.getAffineTransform(
+        rotated_points[:3].astype(np.float32),
+        np.array([[0, 0], [original_w - 1, 0], [original_w - 1, original_h - 1]], dtype=np.float32)
+    )
+
+    def _rotate_back_callback(_to_rotate_back_image):
+        """
+        用于将需要进行反变化回原样的图回调函数
+        
+        Args:
+            _to_rotate_back_image:  待反变化的图
+
+        Returns:    与原图对应
+
+        """
+        return cv2.warpAffine(_to_rotate_back_image,
+                              transform_back_matrix,
+                              (original_w, original_h),
+                              flags=cv2.INTER_NEAREST)
+
+    return rotated_image, _rotate_back_callback
