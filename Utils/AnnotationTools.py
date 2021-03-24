@@ -2,12 +2,31 @@ import cv2
 import os
 from PIL import Image, ImageDraw, ImageFont
 import numpy as np
-
+import colorsys
 from Utils.GeometryUtils import compute_two_points_angle, get_coordinates_of_rotated_box
 
 current_directory = os.path.dirname(__file__)
 candidate_font = '田氏颜体大字库2.0.ttf'
 annotate_font = ImageFont.truetype(os.path.join(current_directory, candidate_font), size=21)
+
+
+def generate_colors(_color_num):
+    """
+    生成一定数量的颜色
+
+    Args:
+        _color_num: 颜色的数量
+
+    Returns:    所有生成的颜色
+
+    """
+    to_return_palette = []
+    # 最多50种颜色
+    for i in range(_color_num):
+        hue_value = (i % 50) * 0.02
+        (r, g, b) = colorsys.hsv_to_rgb(hue_value, 1, 1)
+        to_return_palette.append([int(b * 255), int(g * 255), int(r * 255)])
+    return to_return_palette
 
 
 def annotation_multi_horizon_line_on_image(_img, _y_list, _line_color, _line_thickness=4):
@@ -213,6 +232,37 @@ def draw_rotated_bbox(_to_draw_image: np.ndarray, _rotated_box: dict, _color: tu
     """
     rotated_points = get_coordinates_of_rotated_box(_to_draw_image, _rotated_box)
     cv2.polylines(_to_draw_image, [rotated_points, ], True, _color, _thickness)
+
+
+def annotate_segmentation(
+        _to_draw_image,
+        _segmentation_result,
+        _background_index=0,
+):
+    """
+    标注分割区域
+
+    Args:
+        _to_draw_image:     需要标注的图像
+        _segmentation_result:   分割的结果
+        _background_index:  背景部分的下标
+
+    Returns:    标注完成的图
+
+    """
+    h, w = _to_draw_image.shape[:2]
+    if _to_draw_image.shape[:2] != _segmentation_result.shape[:2]:
+        _segmentation_result = cv2.resize(_segmentation_result, (w, h), cv2.INTER_NEAREST)
+    distinct_index = np.sort(np.unique(_segmentation_result), axis=None)
+    candidate_colors = generate_colors(len(distinct_index))
+    mask_result_image = _to_draw_image.copy()
+    for m_index, m_candidate_color in zip(distinct_index.tolist(), candidate_colors):
+        if m_index == _background_index:
+            continue
+        m_index_segment_result = _segmentation_result == m_index
+        np.putmask(mask_result_image, np.repeat(m_index_segment_result[..., None], 3, axis=-1), m_candidate_color)
+    add_weighted_result_image = cv2.addWeighted(_to_draw_image, 0.5, mask_result_image, 0.5, 0)
+    return add_weighted_result_image
 
 
 def annotate_detect_rotated_bbox_and_text_result(
