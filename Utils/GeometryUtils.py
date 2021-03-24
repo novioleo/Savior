@@ -261,7 +261,7 @@ def rotate_degree_img(_img, _degree, _center=None, _with_expand=True, _mask=None
     rotate_matrix[1, 2] += offset_y
     rotated_img = cv2.warpAffine(_img, rotate_matrix, (new_width, new_height))
     if _mask is not None:
-        rotated_mask = cv2.warpAffine(_mask, rotate_matrix, (new_width, new_height))
+        rotated_mask = cv2.warpAffine(_mask, rotate_matrix, (new_width, new_height), flags=cv2.INTER_NEAREST)
     else:
         rotated_mask = None
     return rotated_img, rotated_mask
@@ -623,3 +623,34 @@ def force_convert_image_to_bgr(_image):
         else:
             candidate_image = _image
     return candidate_image
+
+
+def face_align(_image, _landmark,_target_shape):
+    """
+    人脸对齐
+
+    Args:
+        _image: 人脸图片
+        _landmark:  人脸图片上的landmark
+        _target_shape:  目标尺寸
+
+    Returns:    对齐后的人脸
+
+    """
+    reference_facial_points = np.array([
+        [0.31556875, 0.4615741],
+        [0.6826229, 0.45983392],
+        [0.5002625, 0.6405054],
+        [0.3494719, 0.82469195],
+        [0.6534365, 0.8232509]
+    ], dtype=np.float32)
+    target_facial_points = reference_facial_points.copy()
+    target_facial_points[:,0] *= _target_shape[0]
+    target_facial_points[:,1] *= _target_shape[1]
+    h, w = _image.shape[:2]
+    remapped_landmark = _landmark.copy()
+    remapped_landmark[:, 0] *= w
+    remapped_landmark[:, 1] *= h
+    transform_matrix = cv2.estimateRigidTransform(remapped_landmark, target_facial_points, True)
+    face_img = cv2.warpAffine(_image, transform_matrix, _target_shape)
+    return face_img
