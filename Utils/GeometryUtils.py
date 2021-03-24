@@ -13,14 +13,14 @@ from shapely.geometry import Polygon
 
 def compute_two_points_angle(_base_point, _another_point):
     """
-    以基点作x+延长线，这根线以基点为圆心进行顺时针运动，与基点和另一个点的连线重合所经历的角度
+    以基点作x轴延长线，这根线以基点为圆心进行顺时针运动，与基点和另一个点的连线重合所经历的角度
 
     :param _base_point: 基点
     :param _another_point:  另一个点
     """
     diff_x, diff_y = _another_point[0] - _base_point[0], _another_point[1] - _base_point[1]
     clockwise_angle = 180 + math.degrees(math.atan2(-diff_y, -diff_x))
-    return clockwise_angle
+    return clockwise_angle % 360
 
 
 def get_clockwise_angle_of_two_lines(_center_point, _point_1, _point_2):
