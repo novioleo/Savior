@@ -29,15 +29,17 @@
 
 ### 人脸相关
 
-- [x] [UltraFaceDetect](https://github.com/Linzaer/Ultra-Light-Fast-Generic-Face-Detector-1MB)
-- [x] [RetinaFaceDetect](https://github.com/deepinsight/insightface)
-- [x] [FaceParsing](https://github.com/zllrunning/face-parsing.PyTorch)
-- [x] [Landmark2D](https://github.com/deepinsight/insightface)
-- [x] [FaceEmbedding](https://github.com/ZhaoJ9014/face.evoLVe.PyTorch)
+- [x] [UltraFaceDetect](https://github.com/Linzaer/Ultra-Light-Fast-Generic-Face-Detector-1MB) 人脸检测
+- [x] [RetinaFaceDetect](https://github.com/deepinsight/insightface) 人脸检测
+- [x] [FaceParsing](https://github.com/zllrunning/face-parsing.PyTorch) 人脸语义分区
+- [x] [Landmark2D](https://github.com/deepinsight/insightface)  人脸landmark检测
+- [x] [FaceEmbedding](https://github.com/ZhaoJ9014/face.evoLVe.PyTorch) 人脸特征向量提取
+- [x] [SilentFaceAntiSpoofing](https://github.com/minivision-ai/Silent-Face-Anti-Spoofing)  静默人脸活体检测
 
 ### OCR相关
-- [x] [DB](https://github.com/WenmuZhou/PytorchOCR)
-- [x] [CRNN](https://github.com/WenmuZhou/PytorchOCR)
+- [x] [DB](https://github.com/WenmuZhou/PytorchOCR) 文本检测
+- [x] [CRNN](https://github.com/WenmuZhou/PytorchOCR)   文本识别
+- [ ] []() 版式分析
 
 ### 图像搜索
 
