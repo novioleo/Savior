@@ -66,11 +66,19 @@ class GeneralFaceParsing(FaceParsingOperator):
             raise NotImplementedError(
                 f"{self.inference_config['name']} helper for face parsing not implement")
 
-    def execute(self, _image, _landmark_info):
+    def execute(self, _image, _landmark_info=None):
         to_return_result = {
             'semantic_segmentation': np.zeros((_image.shape[1], _image.shape[0]), dtype=np.uint8),
         }
-        corrected_face_image, rotate_back_function = correct_face_orientation(_image, _landmark_info)
+        if _landmark_info is not None:
+            corrected_face_image, rotate_back_function = correct_face_orientation(_image, _landmark_info)
+        else:
+            corrected_face_image = _image
+
+            def _rotate_back_function(_image):
+                return _image
+
+            rotate_back_function = _rotate_back_function
         original_h, original_w = corrected_face_image.shape[:2]
         resized_image = resize_with_long_side(corrected_face_image, 512)
         resized_h, resized_w = resized_image.shape[:2]
