@@ -39,20 +39,24 @@ class AsiaFaceEmbedding(FaceEmbeddingOperator):
             raise NotImplementedError(
                 f"{self.inference_config['name']} helper for asian face embedding not implement")
 
-    def execute(self, _image, _landmark_info):
+    def execute(self, _image, _landmark_info=None):
         to_return_result = {
             'feature_vector': [0, ] * 512,
         }
-        if _landmark_info['points_count'] == 0:
-            candidate_index = list(range(5))
-        elif _landmark_info['points_count'] == 106:
-            candidate_index = [38, 88, 86, 52, 61]
+        if _landmark_info is not None:
+            if _landmark_info['points_count'] == 0:
+                candidate_index = list(range(5))
+            elif _landmark_info['points_count'] == 106:
+                candidate_index = [38, 88, 86, 52, 61]
+            else:
+                raise NotImplementedError(
+                    f"Cannot align face with {_landmark_info['points_count']} landmark points now")
+            landmark_x = _landmark_info['x_locations'][candidate_index]
+            landmark_y = _landmark_info['y_locations'][candidate_index]
+            landmark = np.stack([landmark_x, landmark_y], axis=1)
+            aligned_face = face_align(_image, landmark, (96, 112))
         else:
-            raise NotImplementedError(f"Cannot align face with {_landmark_info['points_count']} landmark points now")
-        landmark_x = _landmark_info['x_locations'][candidate_index]
-        landmark_y = _landmark_info['y_locations'][candidate_index]
-        landmark = np.stack([landmark_x, landmark_y], axis=1)
-        aligned_face = face_align(_image, landmark, (96, 112))
+            aligned_face = cv2.resize(_image, (96, 112))
         padded_face = center_pad_image_with_specific_base(aligned_face, 112, 112, 0, False)
         if isinstance(self.inference_helper, TritonInferenceHelper):
             result = self.inference_helper.infer(_need_tensor_check=False, INPUT__0=padded_face.astype(np.float32))
