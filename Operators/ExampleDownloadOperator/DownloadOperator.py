@@ -3,6 +3,7 @@ import traceback as tb
 from collections import OrderedDict
 
 from skimage import io
+import cv2
 
 from Operators.DummyOperator import DummyOperator
 from Utils.Exceptions import ImageDownloadTimeoutException, ImageFileSizeAbnormalException, CustomException, \
@@ -29,7 +30,7 @@ class ImageDownloadOperator(DummyOperator):
     ):
         to_return_result = OrderedDict()
         try:
-            request_image = io.imread(_to_download_url)
+            request_image = cv2.cvtColor(io.imread(_to_download_url), cv2.COLOR_RGB2BGR)
             if request_image is None:
                 raise ImageFormatNotSupportException(
                     f'image:{_to_download_url} format not support,cannot decode by opencv')
