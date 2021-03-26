@@ -671,13 +671,9 @@ def face_align(_image, _landmark, _target_shape):
         [0.3494719, 0.82469195],
         [0.6534365, 0.8232509]
     ], dtype=np.float32)
-    target_facial_points = reference_facial_points.copy()
-    target_facial_points[:, 0] *= _target_shape[0]
-    target_facial_points[:, 1] *= _target_shape[1]
+    target_facial_points = reference_facial_points.copy()*_target_shape
     h, w = _image.shape[:2]
-    remapped_landmark = _landmark.copy()
-    remapped_landmark[:, 0] *= w
-    remapped_landmark[:, 1] *= h
+    remapped_landmark = _landmark.copy()*[w,h]
     transform_matrix = cv2.estimateRigidTransform(remapped_landmark, target_facial_points, True)
     face_img = cv2.warpAffine(_image, transform_matrix, _target_shape)
     return face_img
