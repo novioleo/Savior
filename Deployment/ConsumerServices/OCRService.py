@@ -5,7 +5,7 @@ from Deployment.server_config import IS_TEST, OCR_TRITON_URL, OCR_TRITON_PORT
 from Operators.ExampleTextDetectOperator import GeneralDBDetect
 from Operators.ExampleTextRecognizeOperator import GeneralCRNN
 from Utils.AnnotationTools import annotate_detect_rotated_bbox_and_text_result
-from Utils.GeometryUtils import get_rotated_box_roi_from_image
+from Utils.GeometryUtils import get_rotated_box_roi_from_image, resize_with_long_side
 from Utils.ServiceUtils import ServiceTask
 from Utils.Storage import get_oss_handler
 from Utils.misc import get_date_string, get_uuid_name
@@ -13,17 +13,17 @@ from Utils.misc import get_date_string, get_uuid_name
 # 初始化所有会用到的op
 # 初始化crnn的op
 text_recognize_op = GeneralCRNN({
-        'name': 'triton',
-        'backbone_type': 'res34',
-        'triton_url': OCR_TRITON_URL,
-        'triton_port': OCR_TRITON_PORT
+    'name': 'triton',
+    'backbone_type': 'res34',
+    'triton_url': OCR_TRITON_URL,
+    'triton_port': OCR_TRITON_PORT
 }, 'common', IS_TEST)
 # 初始化db的op
 db_res18_op = GeneralDBDetect({
-        'name': 'triton',
-        'backbone_type': 'res18',
-        'triton_url': OCR_TRITON_URL,
-        'triton_port': OCR_TRITON_PORT
+    'name': 'triton',
+    'backbone_type': 'res18',
+    'triton_url': OCR_TRITON_URL,
+    'triton_port': OCR_TRITON_PORT
 }, True, 0.3, 5, 5)
 
 
@@ -81,7 +81,8 @@ def text_detect(_image_info):
         _image_info['bucket_name'],
         _image_info['path']
     )
-    detect_result = db_res18_op.execute(img)
+    resized_img = resize_with_long_side(img, 1024)
+    detect_result = db_res18_op.execute(resized_img)
     for m_box in detect_result['locations']:
         m_box_info = m_box['box_info']
         m_box_score = m_box['score']
