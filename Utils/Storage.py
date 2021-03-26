@@ -114,6 +114,7 @@ class DummyOSS(CloudObjectStorage):
             return to_read.read()
 
     def upload_data(self, _bucket_name, _object_path, _to_upload_object_bytes):
+        self.create_bucket(_bucket_name)
         target_file_path = os.path.join(self.temp_directory_path, _bucket_name, _object_path)
         os.makedirs(os.path.dirname(target_file_path), exist_ok=True)
         with open(target_file_path, mode='wb') as to_write:
@@ -150,6 +151,7 @@ class MinioOSS(CloudObjectStorage):
             response.release_conn()
 
     def upload_data(self, _bucket_name, _object_path, _to_upload_object_bytes):
+        self.create_bucket(_bucket_name)
         return self.client.put_object(_bucket_name, _object_path, _to_upload_object_bytes, -1,
                                       part_size=5 * 1024 * 1024).object_name
 
