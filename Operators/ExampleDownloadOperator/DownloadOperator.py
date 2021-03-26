@@ -1,11 +1,8 @@
 import os
-from collections import OrderedDict
-from io import BytesIO
-
-import cv2
-import numpy as np
-import requests
 import traceback as tb
+from collections import OrderedDict
+
+from skimage import io
 
 from Operators.DummyOperator import DummyOperator
 from Utils.Exceptions import ImageDownloadTimeoutException, ImageFileSizeAbnormalException, CustomException, \
@@ -32,10 +29,7 @@ class ImageDownloadOperator(DummyOperator):
     ):
         to_return_result = OrderedDict()
         try:
-            response = requests.get(_to_download_url, timeout=_timeout)
-            data_stream = BytesIO(response.content)
-            m_image_file_buffer = data_stream.read()
-            request_image = cv2.imdecode(np.frombuffer(m_image_file_buffer, np.uint8), -1)
+            request_image = io.imread(_to_download_url)
             if request_image is None:
                 raise ImageFormatNotSupportException(
                     f'image:{_to_download_url} format not support,cannot decode by opencv')
@@ -58,7 +52,7 @@ class ImageDownloadOperator(DummyOperator):
             to_return_result['image_width'] = image_w
             to_return_result['image_channel'] = image_c
             return to_return_result
-        except requests.exceptions.Timeout as te:
+        except TimeoutError as te:
             raise ImageDownloadTimeoutException(f'{_to_download_url} download timeout')
         except CustomException as ce:
             raise ce
