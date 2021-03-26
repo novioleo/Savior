@@ -81,8 +81,11 @@ def text_detect(_image_info):
         _image_info['bucket_name'],
         _image_info['path']
     )
-    resized_img = resize_with_long_side(img, 1024)
-    detect_result = db_res18_op.execute(resized_img)
+    if max(img.shape[:2]) > 1024:
+        candidate_img = resize_with_long_side(img, 1024)
+    else:
+        candidate_img = img
+    detect_result = db_res18_op.execute(candidate_img)
     for m_box in detect_result['locations']:
         m_box_info = m_box['box_info']
         m_box_score = m_box['score']
