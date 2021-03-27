@@ -13,7 +13,7 @@ class TritonInferenceHelper(CustomInferenceHelper, ABC):
         np.half.__name__: "FP16",
         np.float32.__name__: "FP32",
         np.float64.__name__: "FP64",
-        np.bool.__name__: "BOOL",
+        np.bool8.__name__: "BOOL",
         np.uint8.__name__: "UINT8",
         np.int8.__name__: "INT8",
         np.short.__name__: "INT16",
