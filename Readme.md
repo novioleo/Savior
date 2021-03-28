@@ -33,7 +33,7 @@
 
     > 如果觉得milvus太大，用户可以根据自己的自身情况直接使用faiss或者nmslib。并且自己实现对应helper。
 
-## 框架中已集成的模型
+## 框架中已集成的算法
 
 > 更多开源模型欢迎在issue中补充，也十分欢迎您的PR。
 
@@ -50,6 +50,8 @@
 - [x] [DB](https://github.com/WenmuZhou/PytorchOCR) 文本检测
 - [x] [CRNN](https://github.com/WenmuZhou/PytorchOCR)   文本识别
 - [ ] []() 版式分析
+- [x] 文本图像方向矫正
+- [ ] 任意多边形转换为矩形（针对于segmentation base的检测方案）
 
 ### 图像搜索
 
