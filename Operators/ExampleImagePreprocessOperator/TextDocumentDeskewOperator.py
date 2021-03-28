@@ -3,7 +3,7 @@ from skimage.feature import canny
 from skimage.transform import hough_line, hough_line_peaks
 import numpy as np
 from collections import Counter
-from Utils.GeometryUtils import rotate_degree_img
+from Utils.GeometryUtils import rotate_degree_img, resize_with_long_side
 import cv2
 
 
@@ -24,6 +24,10 @@ def calculate_deviation(_angle):
 
 
 class TextDocumentDeskewOperator(DummyAlgorithm):
+    """
+    只支持小于45度的角度矫正，对于超过45度的，那么就不能保证文字的方向了。
+    """
+
     name = '文本文档图像方向矫正'
     __version__ = 'v1.0.20210327'
 
@@ -33,7 +37,9 @@ class TextDocumentDeskewOperator(DummyAlgorithm):
         self.num_peaks = _num_peaks
 
     def execute(self, _image):
-        gray_image = cv2.cvtColor(_image, cv2.COLOR_BGR2GRAY)
+        # 避免计算耗时过长
+        resized_img = resize_with_long_side(_image, 1024)
+        gray_image = cv2.cvtColor(resized_img, cv2.COLOR_BGR2GRAY)
         edges = canny(gray_image, sigma=self.sigma)
         h, a, d = hough_line(edges)
         _, candidate_angle_bins, _ = hough_line_peaks(h, a, d, num_peaks=self.num_peaks)
