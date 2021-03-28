@@ -15,8 +15,10 @@ minio==7.0.2
 msgpack==1.0.2
 msgpack-numpy==0.4.7.1
 requests==2.25.1
-nvidia-pyindex==1.0.6
-tritonclient[all]==2.6.0
+nvidia-pyindex>=1.0.5
+grpcio==1.36.1
+protobuf==3.15.6
+tritonclient==2.6.0
 pyclipper==1.2.1
 shapely==1.7.1
 scikit-learn==0.24.1
