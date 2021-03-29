@@ -1,5 +1,5 @@
 opencv-python==3.4.11.41
-pillow==6.2.2
+pillow==8.1.2
 tqdm==4.59.0
 celery==5.0.5
 numpy==1.20.1
