@@ -55,6 +55,9 @@
 
 ### 图像搜索
 
+### 通用
+- [x] NRIQA
+
 官方已适配模型下载地址（不定时更新）：
 
 - [百度网盘](https://pan.baidu.com/s/1DvSQMM76gGAltPLma6w1wQ)  密码: sg11
