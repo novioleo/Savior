@@ -4,6 +4,7 @@
 
 
 # 启动服务器的状态，是否为Mock状态，如果是Mock状态则直接返回假数据
+# 如果只有部分service需要是mock状态，那么这里设为True，需要mock的service根据自己的需要进行调整
 IS_MOCK = False
 # 是否是测试状态，在非Mock模式下启动，如果是测试状态的话，可以返回具体错误信息，方便进行问题定位
 IS_TEST = False
