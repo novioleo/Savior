@@ -4,6 +4,7 @@ from collections import OrderedDict
 from celery import exceptions as celery_exceptions
 import traceback as tb
 
+from Deployment.server_config import IS_MOCK, SUBTASK_EXECUTE_TIME_LIMIT_SECONDS
 from Utils.Exceptions import ConsumerAlgorithmTimeoutException, ConsumerAlgorithmUncatchException
 
 
@@ -23,6 +24,14 @@ class ServiceTask:
     binding_service = None
 
     def __init__(self, _count_down=0, _task_name=None, _is_mock=False):
+        """
+        初始化task
+
+        Args:
+            _count_down:    启动时间（秒），启动时间如果非0，则会放入后台等待设定的秒数后进行，不会回传结果。
+            _task_name:     任务名称
+            _is_mock:       是否是mock状态
+        """
         self.filled_field = dict()
         if _task_name is not None:
             self.task_name = _task_name
@@ -30,9 +39,10 @@ class ServiceTask:
             self.task_name = self.service_name
         self.is_mock = _is_mock
         self.count_down = _count_down
-        if _is_mock:
+        if self.is_mock:
             self.service_version = 'Mock Version'
         assert self.binding_service is not None, f'{self.task_name} not bind to service'
+        self.start_time = time.time()
         self.task = asyncio.create_task(self.execute())
 
     def __await__(self):
@@ -41,6 +51,8 @@ class ServiceTask:
     def _decorate_result(self, _result_dict, _time_cost):
         to_return_decorated_result = OrderedDict()
         to_return_decorated_result['version'] = self.service_version
+        # 记录具体启动时间
+        to_return_decorated_result['start_time'] = int(self.start_time * 1000)
         to_return_decorated_result['detail'] = self.mock_result.copy()
         to_return_decorated_result['time_cost'] = '%0.4f ms' % (_time_cost * 1000)
         for m_key, m_value in _result_dict.items():
@@ -94,6 +106,8 @@ class ServiceTask:
         if self.is_mock:
             return self._decorate_result(self.mock_result, time.time() - start_time)
         request_data = await self.get_request_data()
+        # 获取实际运行启动时间
+        self.start_time = time.time()
         try:
             celery_task = self.binding_service.apply_async(
                 kwargs=request_data,
@@ -101,7 +115,7 @@ class ServiceTask:
                 queue='operate_request_queue',
             )
             if self.count_down == 0:
-                api_result_dict = celery_task.get(propagate=True, timeout=30, )
+                api_result_dict = celery_task.get(propagate=True, timeout=SUBTASK_EXECUTE_TIME_LIMIT_SECONDS, )
                 return self._decorate_result(api_result_dict, time.time() - start_time)
         except celery_exceptions.TimeoutError as te:
             raise ConsumerAlgorithmTimeoutException(self.service_name + ' timeout')
