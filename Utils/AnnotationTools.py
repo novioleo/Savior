@@ -75,10 +75,20 @@ def annotate_circle_on_image(_to_annotate_image, _points, _specific_color, _radi
                        thickness=_thickness)
 
 
-def annotate_polygon_on_image(_img, _polygon, _specific_color, _with_index=False, _is_transparent=True):
+def annotate_polygon_on_image(_img, _polygon, _specific_color, _is_transparent=True):
+    """
+    在图中标注多边形区域
+
+    :param _img:    待标注图像
+    :param _polygon:    多边形区域
+    :param _specific_color:     标注颜色
+    :param _is_transparent:     是否透明
+    :return:    标注完成的图像
+    """
     to_return_img = _img.copy()
+    h, w = _img.shape[:2]
     if isinstance(_polygon, list):
-        _polygon = np.array(_polygon, dtype=np.int)
+        _polygon = (np.array(_polygon) * (w, h)).astype(np.int32)
     cv2.fillPoly(to_return_img, [_polygon, ], _specific_color)
     if _is_transparent:
         to_return_img = cv2.addWeighted(to_return_img, 0.5, _img, 0.5, 0)
