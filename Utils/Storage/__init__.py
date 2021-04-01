@@ -17,6 +17,13 @@ def get_oss_handler():
         to_return_handler = DummyOSS(
             None, None, None
         )
+    elif OSS_TYPE == 'COS':
+        to_return_handler = COSOSS(
+            OSS_INFO['ACCESS_KEY'],
+            OSS_INFO['SECRET_KEY'],
+            OSS_INFO['APPID'],
+            OSS_INFO['REGION']
+        )
     else:
         raise NotImplementedError(f'oss client {OSS_TYPE} not implement')
     return to_return_handler
