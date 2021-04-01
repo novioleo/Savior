@@ -51,7 +51,8 @@
 - [x] [CRNN](https://github.com/WenmuZhou/PytorchOCR)   文本识别
 - [ ] []() 版式分析
 - [x] 文本图像方向矫正
-- [ ] 任意多边形转换为矩形（针对于segmentation base的检测方案）
+- [ ] 文本方向检测
+- [ ] 常见扇形环形转换为矩形（针对于segmentation base的检测方案）
 
 ### 图像搜索
 
