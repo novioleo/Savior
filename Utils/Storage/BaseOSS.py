@@ -29,7 +29,11 @@ class CloudObjectStorage(ABC):
         pass
 
     @abstractmethod
-    def get_retrieve_url(self, _bucket_name, _object_path):
+    def get_retrieve_url(self, _bucket_name, _object_path, _expire_seconds=86400 * 7):
+        pass
+
+    @abstractmethod
+    def check_file_exist(self,_bucket_name, _object_path):
         pass
 
     @staticmethod
