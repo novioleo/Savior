@@ -19,10 +19,14 @@ class DummyOSS(CloudObjectStorage):
     def create_bucket(self, _bucket_name):
         os.makedirs(os.path.join(self.temp_directory_path, _bucket_name), exist_ok=True)
 
-    def download_data(self, _bucket_name, _object_path):
+    def check_file_exist(self, _bucket_name, _object_path):
         target_file_path = os.path.join(self.temp_directory_path, _bucket_name, _object_path)
         if not os.path.exists(target_file_path):
             raise ObjectNotFoundOnOSS(target_file_path + ' not found')
+
+    def download_data(self, _bucket_name, _object_path):
+        target_file_path = os.path.join(self.temp_directory_path, _bucket_name, _object_path)
+        self.check_file_exist(_bucket_name, _object_path)
         with open(target_file_path, mode='rb') as to_read:
             return to_read.read()
 
@@ -34,5 +38,5 @@ class DummyOSS(CloudObjectStorage):
             to_write.write(_to_upload_object_bytes.read())
         return _object_path
 
-    def get_retrieve_url(self, _bucket_name, _object_path):
+    def get_retrieve_url(self, _bucket_name, _object_path, _expire_seconds=None):
         return os.path.join(self.temp_directory_path, _bucket_name, _object_path)
