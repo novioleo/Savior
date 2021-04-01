@@ -136,7 +136,7 @@ def ocr_result_visualization(_image_info, _box_info_list, _text_list):
     Returns:    合并后的图片的oss的路径
 
     """
-    to_return_result = {'bucket_name': '', 'path': ''}
+    to_return_result = {'bucket_name': '', 'path': '', 'url': ''}
     oss_handler = get_oss_handler()
     img = oss_handler.download_image_file(
         _image_info['bucket_name'],
@@ -149,6 +149,7 @@ def ocr_result_visualization(_image_info, _box_info_list, _text_list):
     final_image_path = oss_handler.upload_image_file('result', image_path, result_image, True, 50)
     to_return_result['bucket_name'] = 'result'
     to_return_result['path'] = final_image_path
+    to_return_result['url'] = oss_handler.get_retrieve_url('result', final_image_path)
     return to_return_result
 
 

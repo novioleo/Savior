@@ -35,4 +35,5 @@ async def general_ocr(
     to_return_result = dict()
     to_return_result['bucket_name'] = visualization_task_result['bucket_name']
     to_return_result['path'] = visualization_task_result['path']
+    to_return_result['url'] = visualization_task_result['url']
     return ORJSONResponse(to_return_result)
