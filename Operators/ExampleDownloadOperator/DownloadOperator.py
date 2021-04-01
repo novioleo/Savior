@@ -8,7 +8,7 @@ import cv2
 from Operators.DummyOperator import DummyOperator
 from Utils.Exceptions import ImageDownloadTimeoutException, ImageFileSizeAbnormalException, CustomException, \
     ImageFormatNotSupportException, ConsumerAlgorithmUncatchException
-from Utils.Storage import DummyOSS
+from Utils.Storage import CloudObjectStorage
 from Utils.misc import get_uuid_name, get_date_string
 
 
@@ -24,7 +24,7 @@ class ImageDownloadOperator(DummyOperator):
         super().__init__(_is_test)
 
     def execute(
-            self, _to_download_url, _oss_helper,
+            self, _to_download_url, _oss_helper: CloudObjectStorage,
             _timeout=30, _image_size_threshold=10,
 
     ):
@@ -64,7 +64,7 @@ class ImageDownloadOperator(DummyOperator):
 if __name__ == '__main__':
     from pprint import pprint
     from argparse import ArgumentParser
-
+    from Utils.Storage import DummyOSS
     ag = ArgumentParser('Image Download Example')
     ag.add_argument('-i', '--image', type=str, dest='image',
                     default='https://www.baidu.com/img/flexible/logo/pc/result@2.png',
