@@ -46,16 +46,16 @@ OSS_INFO = {
     },
     "COS": {
         "Deploy": {
-            "ENDPOINT": "",
             "ACCESS_KEY": "",
             "SECRET_KEY": "",
-            "REGION": None,
+            "REGION": '',
+            "APPID": ''
         },
         "Test": {
-            "ENDPOINT": "",
             "ACCESS_KEY": "",
             "SECRET_KEY": "",
-            "REGION": None,
+            "REGION": '',
+            "APPID": ''
         }
     }
 }[OSS_TYPE][OSS_ENVIRONMENT_TYPE]
