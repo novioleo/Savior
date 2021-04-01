@@ -34,7 +34,7 @@ if __name__ == '__main__':
     ag.add_argument('-a', '--access_key', type=str, required=True, help='access key')
     ag.add_argument('-s', '--secret_key', type=str, required=True, help='secret key')
     ag.add_argument('-r', '--region', type=str, default=None, help='地域')
-    ag.add_argument('-b', '--bucket_name', type=str, default='test_bucket', help='bucket名称')
+    ag.add_argument('-b', '--bucket_name', type=str, default='testbucket', help='bucket名称')
     ag.add_argument('-i', '--image_path', type=str, required=True, help='测试用的图像路径')
     args = ag.parse_args()
     if args.backend_type == 'minio':
@@ -59,6 +59,7 @@ if __name__ == '__main__':
         bucket_name, upload_image_path, resize_img, True, 90
     )
     image_numpy = oss_operator.download_image_file(bucket_name, upload_image_path)
+    print('image_numpy_request_path', oss_operator.get_retrieve_url(bucket_name, upload_image_path))
     cv2.imwrite('resize_image.png', image_numpy)
     test_numpy_array = [
         np.random.randint(3, 5, (3, 3)).astype(np.uint8),
