@@ -1,5 +1,6 @@
 from Deployment.server_config import OSS_TYPE, OSS_INFO
 from Utils.Storage.BaseOSS import CloudObjectStorage
+from Utils.Storage.COS import COSOSS
 from Utils.Storage.Dummy import DummyOSS
 from Utils.Storage.Minio import MinioOSS
 
@@ -30,8 +31,9 @@ if __name__ == '__main__':
     ag = ArgumentParser('OSS Test Example')
     ag.add_argument('--end_point_url', required=True, type=str, help='OSS服务器的URL')
     ag.add_argument('--end_point_port', required=True, type=str, help='OSS服务器的port')
-    ag.add_argument('--backend_type', required=True, choices=['minio', 'dummy'], type=str, help='OSS服务器的类型')
+    ag.add_argument('--backend_type', required=True, choices=['minio', 'dummy', 'cos'], type=str, help='OSS服务器的类型')
     ag.add_argument('-a', '--access_key', type=str, required=True, help='access key')
+    ag.add_argument('--appid', type=str, required=False, help='appid(cos 专用)')
     ag.add_argument('-s', '--secret_key', type=str, required=True, help='secret key')
     ag.add_argument('-r', '--region', type=str, default=None, help='地域')
     ag.add_argument('-b', '--bucket_name', type=str, default='testbucket', help='bucket名称')
@@ -47,6 +49,15 @@ if __name__ == '__main__':
     elif args.backend_type == 'dummy':
         oss_operator = DummyOSS(
             None, None, None
+        )
+    elif args.backend_type == 'cos':
+        assert 'appid' in args, 'appid缺失'
+        assert 'region' in args, 'region缺失'
+        oss_operator = COSOSS(
+            args.access_key,
+            args.secret_key,
+            args.appid,
+            args.region
         )
     else:
         raise NotImplementedError(f'{args.backend_type} not implement')
