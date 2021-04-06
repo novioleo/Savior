@@ -38,7 +38,7 @@ class DownloadOperator(DummyOperator, ABC):
 
 class ImageDownloadOperator(DownloadOperator):
     """
-    将图像从网上下载下来，然后存储在OSS中，方便集群中的worker进行取用。
+    将图像从网上下载下来，可以存储在OSS中，方便集群中的worker进行取用。
     """
 
     name = "图像下载"
