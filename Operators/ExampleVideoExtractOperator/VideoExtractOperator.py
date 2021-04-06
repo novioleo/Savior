@@ -17,9 +17,22 @@ class VideoExtractOperator(DummyOperator):
         super().__init__(_is_test)
 
     def execute(self, _video_url, _extract_mode, _interval_count,
-                _oss_helper: CloudObjectStorage = None,
+                _oss_helper: CloudObjectStorage,
                 _target_bucket=None,
                 ):
+        """
+        进行视频关键帧提取，并存在在oss中
+
+        Args:
+            _video_url:     视频地址
+            _extract_mode:  提取模式
+            _interval_count:    提取间隔
+            _oss_helper:    oss
+            _target_bucket:     目标bucket name
+
+        Returns:    每个关键帧的bucket name和path
+
+        """
         cap = cv2.VideoCapture(_video_url)
         video_fps = cap.get(cv2.CAP_PROP_FPS)
         if _extract_mode == 'n_seconds':
