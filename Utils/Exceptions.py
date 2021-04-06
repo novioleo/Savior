@@ -1,3 +1,4 @@
+# todo: 后续需要重新规划major code和mirror code，前期先这样写
 class CustomException(Exception):
     MAJOR_CODE = 0
     MIRROR_CODE = 0
@@ -169,3 +170,24 @@ class ImageFormatNotSupportException(GeneralException):
     图像格式不支持
     """
     MIRROR_CODE = 4
+
+
+class DownloadURLNotAvailableException(GeneralException):
+    """
+    下载链接不可用
+    """
+    MIRROR_CODE = 5
+
+
+class DownloadURLTimeoutException(GeneralException):
+    """
+    下载链接超时
+    """
+    MIRROR_CODE = 6
+
+
+class ImageClassNotSupportToEncode(GeneralException):
+    """
+    OSS在进行图像编码的时候，格式不支持
+    """
+    MIRROR_CODE = 7
