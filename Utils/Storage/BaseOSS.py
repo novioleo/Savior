@@ -6,7 +6,8 @@ import msgpack
 import msgpack_numpy as m
 import numpy as np
 from PIL import Image
-from Utils.Exceptions import ImageFileSizeAbnormalException, ImageClassNotSupportToEncode
+from Utils.Exceptions import ImageFileSizeAbnormalException, ImageClassNotSupportToEncode, \
+    ImageFormatNotSupportException
 
 
 class CloudObjectStorage(ABC):
@@ -74,8 +75,17 @@ class CloudObjectStorage(ABC):
         :return:    解码后的numpy数组
         """
         image_file_stream = io.BytesIO(_img_object_bytes)
-        m_image_file_buffer = image_file_stream.read()
-        request_image = cv2.imdecode(np.frombuffer(m_image_file_buffer, np.uint8), -1)
+        img_pil = Image.open(image_file_stream)
+        img_np = np.asarray(img_pil)
+        len_bands = len(img_pil.getbands())
+        if len_bands == 3:
+            request_image = cv2.cvtColor(img_np, cv2.COLOR_RGB2BGR)
+        elif len_bands == 4:
+            request_image = cv2.cvtColor(img_np, cv2.COLOR_RGBA2BGRA)
+        elif len_bands == 1:
+            request_image = img_np.copy()
+        else:
+            raise ImageFormatNotSupportException(f'image mode [{"".join(img_pil.getbands())}] not support now')
         if _image_size_threshold and request_image.nbytes < 1024 * _image_size_threshold:
             raise ImageFileSizeAbnormalException('图像过小，可能不是正常图片')
         return request_image
