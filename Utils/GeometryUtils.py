@@ -239,7 +239,7 @@ def rotate_points(_points, _degree=0, _center=(0, 0)):
                               [np.sin(angle), np.cos(angle)]])
     center = np.atleast_2d(_center)
     points = np.atleast_2d(_points)
-    return np.squeeze((rotate_matrix @ (points.T - center.T) + center.T).T)
+    return np.reshape((rotate_matrix @ (points.T - center.T) + center.T).T, (-1, 2))
 
 
 def get_expand_rotated_points(_image, _center, _rotate_degree):
@@ -671,9 +671,9 @@ def face_align(_image, _landmark, _target_shape):
         [0.3494719, 0.82469195],
         [0.6534365, 0.8232509]
     ], dtype=np.float32)
-    target_facial_points = reference_facial_points.copy()*_target_shape
+    target_facial_points = reference_facial_points.copy() * _target_shape
     h, w = _image.shape[:2]
-    remapped_landmark = _landmark.copy()*[w,h]
+    remapped_landmark = _landmark.copy() * [w, h]
     transform_matrix = cv2.estimateRigidTransform(remapped_landmark, target_facial_points, True)
     face_img = cv2.warpAffine(_image, transform_matrix, _target_shape)
     return face_img
