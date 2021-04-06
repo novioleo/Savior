@@ -191,3 +191,10 @@ class ImageClassNotSupportToEncode(GeneralException):
     OSS在进行图像编码的时候，格式不支持
     """
     MIRROR_CODE = 7
+
+
+class VideoExtractMethodNotSupport(GeneralException):
+    """
+    视频帧提取的方法不支持
+    """
+    MIRROR_CODE = 8
