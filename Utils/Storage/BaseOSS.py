@@ -5,8 +5,8 @@ import cv2
 import msgpack
 import msgpack_numpy as m
 import numpy as np
-
-from Utils.Exceptions import ImageFileSizeAbnormalException
+from PIL import Image
+from Utils.Exceptions import ImageFileSizeAbnormalException, ImageClassNotSupportToEncode
 
 
 class CloudObjectStorage(ABC):
@@ -33,7 +33,7 @@ class CloudObjectStorage(ABC):
         pass
 
     @abstractmethod
-    def check_file_exist(self,_bucket_name, _object_path):
+    def check_file_exist(self, _bucket_name, _object_path):
         pass
 
     @staticmethod
@@ -41,18 +41,27 @@ class CloudObjectStorage(ABC):
         """
         对图像object进行编码
 
-        :param _m_img:  图像numpy数组
+        :param _m_img:  图像（numpy或者PIL）
         :param _enable_compress:    是否需要压缩
-        :param _quality_rate:   具体压缩比例
+        :param _quality_rate:   具体压缩比例(0-100)
         :return:    字节流
         """
-        if not _enable_compress:
-            to_upload_img_bytes = io.BytesIO(cv2.imencode('.png', _m_img)[1])
+        if isinstance(_m_img, np.ndarray):
+            if not _enable_compress:
+                to_upload_img_bytes = io.BytesIO(cv2.imencode('.png', _m_img)[1])
+            else:
+                # webp的效率是png的1/3，但是比类似质量的图像小10倍
+                to_upload_img_bytes = io.BytesIO(
+                    cv2.imencode('.webp', _m_img, [cv2.IMWRITE_WEBP_QUALITY, _quality_rate])[1]
+                )
+        elif isinstance(_m_img, Image.Image):
+            to_upload_img_bytes = io.BytesIO()
+            if not _enable_compress:
+                _m_img.save(to_upload_img_bytes, format='PNG')
+            else:
+                _m_img.save(to_upload_img_bytes, format='WEBP', quality=_quality_rate)
         else:
-            # webp的效率是png的1/3，但是比类似质量的图像小10倍
-            to_upload_img_bytes = io.BytesIO(
-                cv2.imencode('.webp', _m_img, [cv2.IMWRITE_WEBP_QUALITY, _quality_rate])[1]
-            )
+            raise ImageClassNotSupportToEncode(f'{type(_m_img)} not support now')
         return to_upload_img_bytes
 
     @staticmethod
