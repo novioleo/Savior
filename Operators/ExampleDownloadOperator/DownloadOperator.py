@@ -19,9 +19,10 @@ class DownloadOperator(DummyOperator, ABC):
     name = '下载'
     __version__ = 'v1.0.20210406'
 
-    def __init__(self, _is_test, _timeout=30):
+    def __init__(self, _is_test, _timeout=30, _bucket_name='download'):
         super().__init__(_is_test)
         self.timeout = _timeout
+        self.bucket_name = _bucket_name
 
     def download_url(self, _to_download_url, _chunk_size=1024 * 1):
         to_return_bytes = BytesIO()
@@ -44,8 +45,8 @@ class ImageDownloadOperator(DownloadOperator):
     name = "图像下载"
     __version__ = 'v1.0.20210406'
 
-    def __init__(self, _is_test, _timeout=30):
-        super().__init__(_is_test, _timeout)
+    def __init__(self, _is_test, _timeout=30, _bucket_name='downloaded-image'):
+        super().__init__(_is_test, _timeout, _bucket_name)
 
     def execute(
             self, _to_download_url, _oss_helper: CloudObjectStorage = None,
@@ -82,11 +83,11 @@ class ImageDownloadOperator(DownloadOperator):
                 file_name = get_uuid_name()
                 oss_path = os.path.join(get_date_string(), file_name)
                 # 存储原始图像
-                saved_path = _oss_helper.upload_image_file('downloaded-image', oss_path, request_image,
+                saved_path = _oss_helper.upload_image_file(self.bucket_name, oss_path, request_image,
                                                            _enable_compress=False)
             else:
                 saved_path = ''
-            to_return_result['bucket_name'] = 'downloaded-image'
+            to_return_result['bucket_name'] = self.bucket_name
             to_return_result['saved_path'] = saved_path
             to_return_result['image_height'] = image_h
             to_return_result['image_width'] = image_w
