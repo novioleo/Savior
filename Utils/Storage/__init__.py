@@ -36,8 +36,8 @@ if __name__ == '__main__':
     import numpy as np
 
     ag = ArgumentParser('OSS Test Example')
-    ag.add_argument('--end_point_url', required=True, type=str, help='OSS服务器的URL')
-    ag.add_argument('--end_point_port', required=True, type=str, help='OSS服务器的port')
+    ag.add_argument('--end_point_url', required=True, type=str, help='OSS服务器的URL（Minio必须）')
+    ag.add_argument('--end_point_port', required=True, type=str, help='OSS服务器的port（Minio必须）')
     ag.add_argument('--backend_type', required=True, choices=['minio', 'dummy', 'cos'], type=str, help='OSS服务器的类型')
     ag.add_argument('-a', '--access_key', type=str, required=True, help='access key')
     ag.add_argument('--appid', type=str, required=False, help='appid(cos 专用)')
@@ -77,7 +77,7 @@ if __name__ == '__main__':
         bucket_name, upload_image_path, resize_img, True, 90
     )
     image_numpy = oss_operator.download_image_file(bucket_name, upload_image_path)
-    print('image_numpy_request_path', oss_operator.get_retrieve_url(bucket_name, upload_image_path))
+    print('image_url', oss_operator.get_retrieve_url(bucket_name, upload_image_path))
     cv2.imwrite('resize_image.png', image_numpy)
     test_numpy_array = [
         np.random.randint(3, 5, (3, 3)).astype(np.uint8),
