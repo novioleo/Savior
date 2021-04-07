@@ -4,7 +4,7 @@ from celery import Celery
 from kombu import Queue
 
 from Deployment.server_config import WORKER_RABBITMQ_USERNAME, WORKER_RABBITMQ_PASSWORD, WORKER_RABBITMQ_HOST, \
-    WORKER_RABBITMQ_PORT, WORKER_RABBITMQ_VHOST
+    WORKER_RABBITMQ_PORT, WORKER_RABBITMQ_VHOST,TASK_QUEUE
 
 celery_worker_app = Celery(
     "algorithm_worker",
@@ -20,7 +20,7 @@ celery_worker_app.conf.update(
 )
 
 celery_worker_app.conf.task_queues = (
-    Queue('operate_request_queue', routing_key='ConsumerServices.#'),
+    Queue(TASK_QUEUE, routing_key='ConsumerServices.#'),
 )
 
 # 用于放置一些非计算密集型任务
