@@ -3,6 +3,7 @@ from fastapi.responses import ORJSONResponse
 
 from Deployment.ConsumerServices.DummyService import DummyService4Task, DummyService1Task, DummyService2Task, \
     DummyService3Task
+from Utils.ServiceUtils import wait_and_compose_all_task_result
 
 router = APIRouter()
 
@@ -25,5 +26,5 @@ async def dummy_interface(
     task4.add_dependency_from_task('dummy_input_3', task3, 'result_2')
     task4.add_dependency_from_task('dummy_input_4', task2, 'result_1')
     task4.add_dependency_from_task('dummy_input_5', task1, 'result_1')
-    final_result = await DummyService1Task.wait_and_compose_all_task_result(task1, task2, task3, task4)
+    final_result = await wait_and_compose_all_task_result(task1, task2, task3, task4)
     return ORJSONResponse(final_result)
