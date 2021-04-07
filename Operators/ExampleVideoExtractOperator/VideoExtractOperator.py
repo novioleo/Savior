@@ -1,7 +1,7 @@
 import cv2
 
 from Operators.DummyOperator import DummyOperator
-from Utils.Exceptions import VideoExtractMethodNotSupport
+from Utils.Exceptions import VideoExtractMethodNotSupportException
 from Utils.Storage.BaseOSS import CloudObjectStorage
 from concurrent.futures import ThreadPoolExecutor
 
@@ -40,7 +40,7 @@ class VideoExtractOperator(DummyOperator):
         elif _extract_mode == 'n_frames':
             interval_frames = _interval_count
         else:
-            raise VideoExtractMethodNotSupport(f'{_extract_mode} not support now')
+            raise VideoExtractMethodNotSupportException(f'{_extract_mode} not support now')
         video_frame_position = 0
         date_string = get_date_string()
         uuid_name = get_uuid_name()
