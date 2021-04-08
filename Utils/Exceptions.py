@@ -186,15 +186,22 @@ class DownloadURLTimeoutException(GeneralException):
     MIRROR_CODE = 6
 
 
-class ImageClassNotSupportToEncode(GeneralException):
+class ImageClassNotSupportToEncodeException(GeneralException):
     """
     OSS在进行图像编码的时候，格式不支持
     """
     MIRROR_CODE = 7
 
 
-class VideoExtractMethodNotSupport(GeneralException):
+class VideoExtractMethodNotSupportException(GeneralException):
     """
     视频帧提取的方法不支持
     """
     MIRROR_CODE = 8
+
+
+class PreviousTaskNotFinishException(GeneralException):
+    """
+    前置任务未完成异常
+    """
+    MIRROR_CODE = 9

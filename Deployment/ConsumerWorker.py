@@ -1,10 +1,8 @@
-from concurrent.futures.thread import ThreadPoolExecutor
-
 from celery import Celery
 from kombu import Queue
 
 from Deployment.server_config import WORKER_RABBITMQ_USERNAME, WORKER_RABBITMQ_PASSWORD, WORKER_RABBITMQ_HOST, \
-    WORKER_RABBITMQ_PORT, WORKER_RABBITMQ_VHOST
+    WORKER_RABBITMQ_PORT, WORKER_RABBITMQ_VHOST, TASK_QUEUE, AVAILABLE_SERVICES
 
 celery_worker_app = Celery(
     "algorithm_worker",
@@ -17,18 +15,13 @@ celery_worker_app.conf.update(
     task_track_started=True,
     worker_prefetch_multiplier=1,
     task_acks_late=True,
+    enable_utc=True,
+    timezone='Asia/Shanghai'
 )
 
 celery_worker_app.conf.task_queues = (
-    Queue('operate_request_queue', routing_key='ConsumerServices.#'),
+    Queue(TASK_QUEUE, routing_key='ConsumerServices.#'),
 )
 
-# 用于放置一些非计算密集型任务
-background_thread_pool_executor = ThreadPoolExecutor()
-
 # 配置所需要的service的package name
-# note:GeneralService最好一直保留，会涉及一些基础操作，例如下载数据、操作数据库等
-celery_worker_app.autodiscover_tasks([
-    'Deployment.ConsumerServices.GeneralService',
-    'Deployment.ConsumerServices.OCRService',
-], related_name=None, force=True)
+celery_worker_app.autodiscover_tasks(AVAILABLE_SERVICES, related_name=None, force=True)
