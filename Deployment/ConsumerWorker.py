@@ -15,6 +15,8 @@ celery_worker_app.conf.update(
     task_track_started=True,
     worker_prefetch_multiplier=1,
     task_acks_late=True,
+    enable_utc=True,
+    timezone='Asia/Shanghai'
 )
 
 celery_worker_app.conf.task_queues = (
