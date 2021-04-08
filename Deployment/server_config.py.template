@@ -15,7 +15,11 @@ DEPLOY_VERSION = 'V1.0.alpha'
 
 # dummy_interface是用来测试当前服务器是否成功启动
 AVAILABLE_INTERFACES = [
-    ('DummyInterface', '/dummy_interface'),
+    ('Deployment.DispatchInterfaces.DummyInterface', '/dummy_interface'),
+]
+# dummy_service是用来测试service是否成功启动
+AVAILABLE_SERVICES = [
+    'Deployment.ConsumerServices.DummyService',
 ]
 
 # dispatch的接口
