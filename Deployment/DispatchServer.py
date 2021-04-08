@@ -1,16 +1,12 @@
 import uvicorn
 from fastapi import FastAPI
 import importlib
-from Deployment.server_config import DEPLOY_VERSION, SERVER_NAME
+from Deployment.server_config import DEPLOY_VERSION, SERVER_NAME, AVAILABLE_INTERFACES
 
 app = FastAPI(title=SERVER_NAME, version=DEPLOY_VERSION)
 
-# dummy_interface是用来测试当前服务器是否成功启动
-available_interfaces = [
-    ('DummyInterface', '/dummy_interface'),
-    ('OCRRelatedInterface', '/ocr_interface'),
-]
-for m_router_package, m_path_prefix in available_interfaces:
+
+for m_router_package, m_path_prefix in AVAILABLE_INTERFACES:
     try:
         m_interface_module = importlib.import_module(f'Deployment.DispatchInterfaces.{m_router_package}')
         m_interface_router = getattr(m_interface_module, 'router')

@@ -13,6 +13,11 @@ SERVER_NAME = 'DefaultServerName'
 # 当前整个大版本的版本信息
 DEPLOY_VERSION = 'V1.0.alpha'
 
+# dummy_interface是用来测试当前服务器是否成功启动
+AVAILABLE_INTERFACES = [
+    ('DummyInterface', '/dummy_interface'),
+]
+
 # dispatch的接口
 DISPATCH_SERVER_PORT = 18001
 # 每个service的超时秒数
