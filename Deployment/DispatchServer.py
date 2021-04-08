@@ -8,7 +8,7 @@ app = FastAPI(title=SERVER_NAME, version=DEPLOY_VERSION)
 
 for m_router_package, m_path_prefix in AVAILABLE_INTERFACES:
     try:
-        m_interface_module = importlib.import_module(f'Deployment.DispatchInterfaces.{m_router_package}')
+        m_interface_module = importlib.import_module(f'{m_router_package}')
         m_interface_router = getattr(m_interface_module, 'router')
         app.include_router(m_interface_router, prefix=m_path_prefix)
         print(f'{m_router_package} load finish')
