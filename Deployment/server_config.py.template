@@ -22,6 +22,9 @@ AVAILABLE_INTERFACES = [
 DISPATCH_SERVER_PORT = 18001
 # 每个service的超时秒数
 SUBTASK_EXECUTE_TIME_LIMIT_SECONDS = 120
+# 任务队列名称
+TASK_QUEUE = 'operate_request_queue'
+
 
 # oss related，需要区分生产环境和测试环境，可以根据自己需要增加更多的环境
 OSS_TYPE = 'DUMMY'
