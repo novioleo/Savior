@@ -2,7 +2,7 @@
 
 **save your time.**
 
-**只在Ubuntu18.04下完成全部测试，其他平台暂时未测试。**
+**只在Ubuntu18.04，Mac Big Sur下完成全部测试，其他平台暂时未测试。**
 
 **目前项目还处于早期开发阶段，如有任何问题，欢迎添加微信nsnovio，备注部署，进群交流。**
 
@@ -45,14 +45,15 @@
 - [x] [Landmark2D](https://github.com/deepinsight/insightface)  人脸landmark检测
 - [x] [FaceEmbedding](https://github.com/ZhaoJ9014/face.evoLVe.PyTorch) 人脸特征向量提取
 - [x] [SilentFaceAntiSpoofing](https://github.com/minivision-ai/Silent-Face-Anti-Spoofing)  静默人脸活体检测
+- [ ] [LFFD2](https://github.com/YonghaoHe/LFD-A-Light-and-Fast-Detector) 人脸检测
 
 ### OCR相关
 - [x] [DB](https://github.com/WenmuZhou/PytorchOCR) 文本检测
 - [x] [CRNN](https://github.com/WenmuZhou/PytorchOCR)   文本识别
 - [ ] []() 版式分析
-- [x] 文本图像方向矫正
-- [ ] 文本方向检测
-- [ ] 常见扇形环形转换为矩形（针对于segmentation base的检测方案）
+- [x] 文档图像方向矫正(deskew)
+- [ ] [文本方向回归](https://github.com/WenmuZhou/PytorchOCR) 文本方向检测
+- [ ] [MORAN_V2](https://github.com/Canjie-Luo/MORAN_v2) 文本图像校正
 
 ### 图像搜索
 
