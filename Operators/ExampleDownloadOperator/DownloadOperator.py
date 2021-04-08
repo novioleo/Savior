@@ -28,6 +28,8 @@ class DownloadOperator(DummyOperator, ABC):
         to_return_bytes = BytesIO()
         try:
             download_response = requests.get(_to_download_url, timeout=self.timeout)
+            if download_response.status_code != 200:
+                raise DownloadURLNotAvailableException('download fail')
             for m_chuck in download_response.iter_content(chunk_size=_chunk_size):
                 to_return_bytes.write(m_chuck)
         except requests.exceptions.Timeout as te:
@@ -105,7 +107,7 @@ class ImageDownloadOperator(DownloadOperator):
 if __name__ == '__main__':
     from pprint import pprint
     from argparse import ArgumentParser
-    from Utils.Storage import DummyOSS
+    from Utils.Storage import DummyOSS, get_oss_handler
 
     ag = ArgumentParser('Image Download Example')
     ag.add_argument('-i', '--image', type=str, dest='image',
@@ -116,4 +118,6 @@ if __name__ == '__main__':
     image_url = args.image
     image_download_operator = ImageDownloadOperator(True)
     download_result = image_download_operator.execute(image_url, oss_helper)
+    download_img = oss_helper.download_image_file(download_result['bucket_name'], download_result['saved_path'])
+    print(download_img.shape[:2])
     pprint(download_result)
