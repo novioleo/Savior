@@ -62,6 +62,7 @@ class CloudObjectStorage(ABC):
                 _m_img.save(to_upload_img_bytes, format='PNG')
             else:
                 _m_img.save(to_upload_img_bytes, format='WEBP', quality=_quality_rate)
+            to_upload_img_bytes.seek(0)
         else:
             raise ImageClassNotSupportToEncodeException(f'{type(_m_img)} not support now')
         return to_upload_img_bytes
