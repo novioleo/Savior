@@ -27,10 +27,11 @@ class TritonInferenceHelper(CustomInferenceHelper, ABC):
         self.target_url = '%s:%s' % (_server_url, _server_port)
         self.model_name = _model_name
         self.model_version = str(_model_version)
+        self.triton_client = None
 
+    def check_ready(self):
         try:
             # 新版本的triton client的send和receive的length都超过了1GB，足够霍霍了
-            # self.triton_client = CustomInferenceServerClient(url=self.target_url)
             self.triton_client = grpcclient.InferenceServerClient(url=self.target_url)
         except Exception as e:
             raise TritonServerCannotConnectException(f'triton server {self.target_url} connect fail')
@@ -41,6 +42,7 @@ class TritonInferenceHelper(CustomInferenceHelper, ABC):
         self.all_inputs[_input_name] = ImageTensorInfo(_input_name, _input_shape, _input_description, _mean_and_std)
 
     def infer(self, _need_tensor_check=False, **_input_tensor):
+        self.check_ready()
         inputs = []
         assert _input_tensor.keys() == set(self.all_inputs.keys()), f'{self.model_name} the input tensor not match'
         for m_name, m_tensor_info in self.all_inputs.items():
