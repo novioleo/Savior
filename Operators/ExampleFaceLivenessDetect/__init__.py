@@ -1,1 +1,0 @@
-from Operators.ExampleFaceLivenessDetect.FaceLivenessDetectOperator import GeneralMiniFASNetV1SE, GeneralMiniFASNetV2

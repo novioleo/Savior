@@ -7,7 +7,7 @@ import msgpack_numpy as m
 import numpy as np
 from PIL import Image
 
-from Utils.Exceptions import ImageFileSizeAbnormalException, ImageClassNotSupportToEncode
+from Utils.Exceptions import ImageFileSizeAbnormalException, ImageClassNotSupportToEncodeException
 from Utils.misc import convert_pil_to_numpy
 
 
@@ -62,8 +62,9 @@ class CloudObjectStorage(ABC):
                 _m_img.save(to_upload_img_bytes, format='PNG')
             else:
                 _m_img.save(to_upload_img_bytes, format='WEBP', quality=_quality_rate)
+            to_upload_img_bytes.seek(0)
         else:
-            raise ImageClassNotSupportToEncode(f'{type(_m_img)} not support now')
+            raise ImageClassNotSupportToEncodeException(f'{type(_m_img)} not support now')
         return to_upload_img_bytes
 
     @staticmethod

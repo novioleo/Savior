@@ -3,7 +3,7 @@ import os
 from Deployment.ConsumerWorker import celery_worker_app
 from Deployment.server_config import IS_TEST, FACE_TRITON_URL, FACE_TRITON_PORT
 from Operators.ExampleFaceAlignmentOperator import GeneralLandmark106p
-from Operators.ExampleFaceLivenessDetect import GeneralMiniFASNetV2
+from Operators.ExampleFaceLivenessDetectOperator import GeneralMiniFASNetV2
 from Operators.ExampleFaceParsingOperator.FaceParsingOperator import GeneralFaceParsing
 from Operators.ExampleImageEmbeddingOperator import AsiaFaceEmbedding
 from Utils.GeometryUtils import get_rotated_box_roi_from_image

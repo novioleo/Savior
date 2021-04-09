@@ -58,6 +58,10 @@ class CustomInferenceHelper(ABC):
         self.all_inputs = OrderedDict()
         self.all_outputs = OrderedDict()
 
+    @abstractmethod
+    def check_ready(self):
+        pass
+
     def add_input(self, _input_name, _input_shape, _input_description):
         self.all_inputs[_input_name] = TensorInfo(_input_name, _input_shape, _input_description)
 
