@@ -3,7 +3,7 @@ from enum import Enum
 from scipy.special import softmax
 
 from Operators.DummyAlgorithmWithModel import DummyAlgorithmWithModel
-from Utils.GeometryUtils import face_align, center_pad_image_with_specific_base
+from Utils.GeometryUtils import face_align, center_pad_image_with_specific_base, force_convert_image_to_bgr
 from Utils.InferenceHelpers import TritonInferenceHelper
 import numpy as np
 import cv2
@@ -82,8 +82,9 @@ class AgeRaceGenderWithFair(DummyAlgorithmWithModel):
         else:
             aligned_face = cv2.resize(_image, (192, 224))
         padded_face = center_pad_image_with_specific_base(aligned_face, 224, 224, 0, False)
+        candidate_image = force_convert_image_to_bgr(padded_face)
         if isinstance(self.inference_helper, TritonInferenceHelper):
-            result = self.inference_helper.infer(_need_tensor_check=False, INPUT__0=padded_face.astype(np.float32))
+            result = self.inference_helper.infer(_need_tensor_check=False, INPUT__0=candidate_image.astype(np.float32))
             classification_result = result['OUTPUT__0'].squeeze(0)
         else:
             raise NotImplementedError(

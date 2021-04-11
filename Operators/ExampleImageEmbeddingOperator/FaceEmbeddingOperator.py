@@ -3,7 +3,7 @@ import numpy as np
 import cv2
 from Operators.DummyAlgorithmWithModel import DummyAlgorithmWithModel
 from Utils.InferenceHelpers import TritonInferenceHelper
-from Utils.GeometryUtils import face_align
+from Utils.GeometryUtils import face_align, force_convert_image_to_bgr
 
 
 class FaceEmbeddingOperator(DummyAlgorithmWithModel, ABC):
@@ -58,8 +58,9 @@ class AsiaFaceEmbedding(FaceEmbeddingOperator):
         else:
             aligned_face = cv2.resize(_image, (96, 112))
         padded_face = center_pad_image_with_specific_base(aligned_face, 112, 112, 0, False)
+        candidate_image = force_convert_image_to_bgr(padded_face)
         if isinstance(self.inference_helper, TritonInferenceHelper):
-            result = self.inference_helper.infer(_need_tensor_check=False, INPUT__0=padded_face.astype(np.float32))
+            result = self.inference_helper.infer(_need_tensor_check=False, INPUT__0=candidate_image.astype(np.float32))
             face_feature_vector = result['OUTPUT__0'].squeeze()
         else:
             raise NotImplementedError(

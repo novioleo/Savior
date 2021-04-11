@@ -5,7 +5,7 @@ import numpy as np
 
 from Operators.DummyAlgorithmWithModel import DummyAlgorithmWithModel
 from Operators.ExampleTextDetectOperator.PostProcess import db_post_process
-from Utils.GeometryUtils import resize_with_short_side, resize_with_specific_base
+from Utils.GeometryUtils import resize_with_short_side, resize_with_specific_base, force_convert_image_to_bgr
 from Utils.InferenceHelpers import TritonInferenceHelper
 
 
@@ -61,13 +61,7 @@ class GeneralDBDetect(TextDetectOperator):
         }
         h, w = _image.shape[:2]
         resized_image = resize_with_specific_base(resize_with_short_side(_image, max(736, min(h, w))), 32, 32)
-        if len(resized_image.shape) == 2:
-            candidate_image = cv2.cvtColor(resized_image, cv2.COLOR_GRAY2BGR)
-        else:
-            if resized_image.shape[-1] == 4:
-                candidate_image = cv2.cvtColor(resized_image, cv2.COLOR_BGRA2BGR)
-            else:
-                candidate_image = resized_image
+        candidate_image = force_convert_image_to_bgr(resized_image)
         if isinstance(self.inference_helper, TritonInferenceHelper):
             result = self.inference_helper.infer(_need_tensor_check=False, INPUT__0=candidate_image.astype(np.float32))
             score_map = result['OUTPUT__0']

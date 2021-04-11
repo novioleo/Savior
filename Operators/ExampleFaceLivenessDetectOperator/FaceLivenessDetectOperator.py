@@ -42,7 +42,8 @@ class GeneralMiniFASNetV1SE(FaceLivenessDetect):
             'classification_score_count': 3,
             'classification_scores': [0] * 3
         }
-        candidate_image = cv2.resize(_image, (80, 80))
+        resized_image = cv2.resize(_image, (80, 80))
+        candidate_image = force_convert_image_to_bgr(resized_image)
         if isinstance(self.inference_helper, TritonInferenceHelper):
             result = self.inference_helper.infer(_need_tensor_check=False, INPUT__0=candidate_image.astype(np.float32))
             scores = result['OUTPUT__0'].squeeze()
@@ -86,7 +87,8 @@ class GeneralMiniFASNetV2(FaceLivenessDetect):
             'classification_score_count': 3,
             'classification_scores': [0] * 3
         }
-        candidate_image = cv2.resize(_image, (80, 80))
+        resized_image = cv2.resize(_image, (80, 80))
+        candidate_image = force_convert_image_to_bgr(resized_image)
         if isinstance(self.inference_helper, TritonInferenceHelper):
             result = self.inference_helper.infer(_need_tensor_check=False, INPUT__0=candidate_image.astype(np.float32))
             scores = result['OUTPUT__0'].squeeze()
@@ -100,7 +102,7 @@ class GeneralMiniFASNetV2(FaceLivenessDetect):
 if __name__ == '__main__':
     from argparse import ArgumentParser
     from Operators.ExampleFaceDetectOperator import GeneralUltraLightFaceDetect
-    from Utils.GeometryUtils import get_rotated_box_roi_from_image
+    from Utils.GeometryUtils import get_rotated_box_roi_from_image, force_convert_image_to_bgr
 
     ag = ArgumentParser('Face Liveness Detect Example')
     ag.add_argument('-i', '--image_path', dest='image_path', type=str, required=True, help='本地图像路径')
