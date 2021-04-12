@@ -57,7 +57,7 @@ class GeneralTextOrientationOperator(TextOrientationOperator):
             self.inference_helper = inference_helper
         else:
             raise NotImplementedError(
-                f"{self.inference_config['name']} helper for text orientation not implement")
+                f"{self.inference_config['name']} helper for text orientation classification not implement")
 
     def execute(self, _image):
         to_return_result = {
@@ -78,7 +78,8 @@ class GeneralTextOrientationOperator(TextOrientationOperator):
             result = self.inference_helper.infer(_need_tensor_check=False, INPUT__0=candidate_image.astype(np.float32))
             classification = result['OUTPUT__0'].squeeze()
         else:
-            raise NotImplementedError(f"{self.inference_helper.type_name} helper for db not implement")
+            raise NotImplementedError(
+                f"{self.inference_helper.type_name} helper for text orientation classification not implement")
         target_index = np.argmax(classification)
         if classification[target_index] > self.threshold:
             if target_index == 0:
