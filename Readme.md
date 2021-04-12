@@ -53,7 +53,7 @@
 - [ ] [网页、杂志等数据版式分析](https://github.com/Layout-Parser/layout-parser) 版式分析
 - [ ] [文章数据版式分析](https://github.com/Layout-Parser/layout-parser) 版式分析
 - [x] 文档图像方向矫正(deskew)
-- [ ] [文本方向回归](https://github.com/WenmuZhou/PytorchOCR) 文本方向检测
+- [x] [文本行方向回归](https://github.com/WenmuZhou/PytorchOCR) 文本行方向检测
 
 ### 图像搜索
 
