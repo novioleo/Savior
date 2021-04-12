@@ -64,7 +64,6 @@ class GeneralTextOrientationOperator(TextOrientationOperator):
         }
         resized_image = cv2.resize(_image, self.target_shape)
         candidate_image = force_convert_image_to_bgr(resized_image)
-        cv2.imwrite('candidate_image.png', candidate_image)
         if isinstance(self.inference_helper, TritonInferenceHelper):
             result = self.inference_helper.infer(_need_tensor_check=False, INPUT__0=candidate_image.astype(np.float32))
             classification = result['OUTPUT__0'].squeeze()
