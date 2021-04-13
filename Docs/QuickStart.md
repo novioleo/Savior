@@ -20,7 +20,7 @@
 
 > 为了保证拉取一些镜像的时候的速度，可以使用阿里云的docker加速：[阿里云docker镜像加速器配置](https://cr.console.aliyun.com/cn-hangzhou/instances/mirrors)
 
-安装Nvidia Docker之前事先需要确认当前主机的驱动是否正常。打开控制台输入`nvidia-smi`。如果能看到![image-20210413141227646](/Users/novio/projects/PipelineWebServiceDeployFramework/Docs/QuickStartImages/nvidia-smi截图.png)
+安装Nvidia Docker之前事先需要确认当前主机的驱动是否正常。打开控制台输入`nvidia-smi`。如果能看到![image-20210413141227646](./QuickStartImages/nvidia-smi截图.png)
 
 证明当前设备的的显卡驱动已经正确。
 
@@ -40,11 +40,11 @@
 >
 > 如果启动成功可以通过访问页面：http://localhost:15672看到如下界面：
 >
-> ![image-20210413143444256](/Users/novio/projects/PipelineWebServiceDeployFramework/Docs/QuickStartImages/rabbitmq入口界面.png)
+> ![image-20210413143444256](./QuickStartImages/rabbitmq入口界面.png)
 
 进入rabbitmq的登录页面输入用户名和密码，点击登录，看到如下类似界面：
 
-![image-20210413143546269](/Users/novio/projects/PipelineWebServiceDeployFramework/Docs/QuickStartImages/rabbitmq_overview页面.png)
+![image-20210413143546269](./QuickStartImages/rabbitmq_overview页面.png)
 
 说明rabbitmq已经成功启动并且账号密码无误。
 
@@ -58,7 +58,7 @@
 
    > 可以前往[Triton Relase](https://github.com/triton-inference-server/server/releases)下载最新的source包，然后通过`build.py`构建自己的Triton Server，并配置对应的模型的文件夹地址。
 
-4. 如果出现![image-20210413145812240](/Users/novio/projects/PipelineWebServiceDeployFramework/Docs/QuickStartImages/Triton启动成功界面.png)说明启动成功。如果未出现，需要查看Triton输出的日志信息。
+4. 如果出现![image-20210413145812240](./QuickStartImages/Triton启动成功界面.png)说明启动成功。如果未出现，需要查看Triton输出的日志信息。
 
 ## 代码测试
 
@@ -72,7 +72,7 @@
 
 4. 测试文本检测模型`python  ./Operators/ExampleTextDetectOperator/TextDetectOperator.py -i ./TestImages/TextDetectImage.png -u triton的地址 -p triton的端口`
 
-   > ![image-20210413165834616](/Users/novio/projects/PipelineWebServiceDeployFramework/Docs/QuickStartImages/文本检测结果示例图.png)
+   > ![image-20210413165834616](./QuickStartImages/文本检测结果示例图.png)
    >
    > 如果一切正常则会得到文本的检测结果。
 
@@ -154,13 +154,13 @@
 
    > 启动成功会得到以下页面：
    >
-   > ![image-20210413174956036](/Users/novio/projects/PipelineWebServiceDeployFramework/Docs/QuickStartImages/celery启动成功界面.png)
+   > ![image-20210413174956036](./QuickStartImages/celery启动成功界面.png)
 
 2. 启动web服务器，启动控制台并进行Savior文件夹，执行`python Deployment/DispatchServer.py`
 
    > 启动成功会得到以下页面：
    >
-   > ![image-20210413175242326](/Users/novio/projects/PipelineWebServiceDeployFramework/Docs/QuickStartImages/web服务启动成功界面.png)
+   > ![image-20210413175242326](./QuickStartImages/web服务启动成功界面.png)
 
 ## 服务测试
 
@@ -170,7 +170,7 @@
 
 > 创建成功后如下图所示：
 >
-> ![image-20210413175830641](/Users/novio/projects/PipelineWebServiceDeployFramework/Docs/QuickStartImages/apifox接口文档页面.png)
+> ![image-20210413175830641](./QuickStartImages/apifox接口文档页面.png)
 
 点击运行进行接口测试（需要自行配置环境），并将`image_url`填为：http://www.chaoda.com/upload/201907/1563411797188792.jpg，运行接口（如果前几次需要多等待下，triton需要预热，后面就正常速度），得到如下json：
 
@@ -187,6 +187,6 @@
 
 其中url为生成图像的路径。如下：
 
-![image-20210413180850213](/Users/novio/projects/PipelineWebServiceDeployFramework/Docs/QuickStartImages/ocr接口结果图.png)
+![image-20210413180850213](./QuickStartImages/ocr接口结果图.png)
 
 至此，恭喜将demo顺利打通。可以自行测试当前接口，也可以参考其他文档，进行更丰富的测试。
