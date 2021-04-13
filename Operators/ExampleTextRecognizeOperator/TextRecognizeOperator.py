@@ -1,6 +1,5 @@
 from abc import ABC
 
-import cv2
 import numpy as np
 
 from Operators.DummyAlgorithmWithModel import DummyAlgorithmWithModel
@@ -59,10 +58,10 @@ class GeneralCRNN(TextRecognizeOperator):
             'probability': []
         }
         resized_image = resize_with_height(_image, 32)
-        padded_image = center_pad_image_with_specific_base(resized_image, _width_base=4).astype(np.float32)
+        padded_image = center_pad_image_with_specific_base(resized_image, _width_base=4)
         candidate_image = force_convert_image_to_bgr(padded_image)
         if isinstance(self.inference_helper, TritonInferenceHelper):
-            result = self.inference_helper.infer(_need_tensor_check=False, INPUT__0=candidate_image)
+            result = self.inference_helper.infer(_need_tensor_check=False, INPUT__0=candidate_image.astype(np.float32))
             predict_index, predict_score = result['OUTPUT__1'], result['OUTPUT__0']
         else:
             raise NotImplementedError(f"{self.inference_helper.type_name} helper for crnn not implement")
@@ -74,22 +73,20 @@ class GeneralCRNN(TextRecognizeOperator):
 
 if __name__ == '__main__':
     from argparse import ArgumentParser
+    import cv2
+    from pprint import pprint
 
     ag = ArgumentParser('Text Recognize Example')
     ag.add_argument('-i', '--image_path', dest='image_path', type=str, required=True, help='本地图像路径')
     ag.add_argument('-u', '--triton_url', dest='triton_url', type=str, required=True, help='triton url')
     ag.add_argument('-p', '--triton_port', dest='triton_port', type=int, default=8001, help='triton grpc 端口')
+    ag.add_argument('-b', '--backbone', dest='backbone', choices=['mbv3', 'res34'], default='res34',
+                    help='crnn的backbone')
     args = ag.parse_args()
     img = cv2.imread(args.image_path)
-    crnn_mbv3_handler = GeneralCRNN({
+    crnn_handler = GeneralCRNN({
         'name': 'triton',
-        'backbone_type': 'mbv3',
+        'backbone_type': args.backbone,
         'triton_url': args.triton_url,
         'triton_port': args.triton_port}, 'common', True)
-    crnn_res34_handler = GeneralCRNN({
-        'name': 'triton',
-        'backbone_type': 'res34',
-        'triton_url': args.triton_url,
-        'triton_port': args.triton_port}, 'common', True)
-    print(crnn_mbv3_handler.execute(img))
-    print(crnn_res34_handler.execute(img))
+    pprint(crnn_handler.execute(img))
