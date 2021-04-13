@@ -4,8 +4,10 @@ from Deployment.ConsumerWorker import celery_worker_app
 from Deployment.server_config import IS_TEST, OCR_TRITON_URL, OCR_TRITON_PORT
 from Operators.ExampleTextDetectOperator import GeneralDBDetect
 from Operators.ExampleTextRecognizeOperator import GeneralCRNN
+from Operators.ExampleTextOrientationClassificationOperator import GeneralTextOrientationOperator, TextImageOrientation
 from Utils.AnnotationTools import annotate_detect_rotated_bbox_and_text_result
-from Utils.GeometryUtils import get_rotated_box_roi_from_image, resize_with_long_side
+from Utils.GeometryUtils import get_rotated_box_roi_from_image, resize_with_long_side, rotate_degree_img, \
+    force_convert_image_to_bgr
 from Utils.ServiceUtils import ServiceTask
 from Utils.Storage import get_oss_handler
 from Utils.misc import get_date_string, get_uuid_name
@@ -24,7 +26,13 @@ db_res18_op = GeneralDBDetect({
     'backbone_type': 'res18',
     'triton_url': OCR_TRITON_URL,
     'triton_port': OCR_TRITON_PORT
-}, True, 0.3, 5, 5)
+}, IS_TEST, 0.3, 5, 5)
+# 初始化文本方向检测op
+text_orientation_op = GeneralTextOrientationOperator({
+    'name': 'triton',
+    'triton_url': OCR_TRITON_URL,
+    'triton_port': OCR_TRITON_PORT
+}, IS_TEST, 0.8)
 
 
 @celery_worker_app.task(name="ConsumerServices.OCRService.text_recognize")
@@ -46,7 +54,16 @@ def text_recognize(_image_info, _box_info):
         _image_info['path']
     )
     cropped_image = get_rotated_box_roi_from_image(img, _box_info)
-    recognize_result = text_recognize_op.execute(cropped_image)
+    get_image_rotation = text_orientation_op.execute(cropped_image)
+    if get_image_rotation['orientation'] == TextImageOrientation.ORIENTATION_90:
+        rotated_image, _ = rotate_degree_img(cropped_image, 90)
+    elif get_image_rotation['orientation'] == TextImageOrientation.ORIENTATION_180:
+        rotated_image, _ = rotate_degree_img(cropped_image, 180)
+    elif get_image_rotation['orientation'] == TextImageOrientation.ORIENTATION_270:
+        rotated_image, _ = rotate_degree_img(cropped_image, 270)
+    else:
+        rotated_image = cropped_image
+    recognize_result = text_recognize_op.execute(rotated_image)
     to_return_result['text'] = recognize_result['text']
     return to_return_result
 
@@ -142,7 +159,12 @@ def ocr_result_visualization(_image_info, _box_info_list, _text_list):
         _image_info['bucket_name'],
         _image_info['path']
     )
-    result_image = annotate_detect_rotated_bbox_and_text_result(img, _box_info_list, _text_list, (0, 0, 255), 3)
+    annotate_image = force_convert_image_to_bgr(img)
+    result_image = annotate_detect_rotated_bbox_and_text_result(annotate_image,
+                                                                _box_info_list,
+                                                                _text_list,
+                                                                (0, 0, 255),
+                                                                3)
     date_string = get_date_string()
     uuid_name = get_uuid_name()
     image_path = os.path.join(date_string, uuid_name)
