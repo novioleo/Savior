@@ -24,6 +24,8 @@ def db_post_process(_predict_score, _thresh, _bbox_scale_ratio, _min_size=5):
         if len(m_contour) < 4 and cv2.contourArea(m_contour) < 16:
             continue
         m_rotated_box = get_min_area_bbox(refined_mask_region, m_contour, _bbox_scale_ratio)
+        if m_rotated_box is None:
+            continue
         m_box_width = m_rotated_box['box_width']
         m_box_height = m_rotated_box['box_height']
         if min(m_box_width * w, m_box_height * h) < _min_size:
