@@ -1,11 +1,11 @@
 from abc import ABC
 
-import cv2
 import numpy as np
 
 from Operators.DummyAlgorithmWithModel import DummyAlgorithmWithModel
 from Operators.ExampleTextDetectOperator.PostProcess import db_post_process
-from Utils.GeometryUtils import resize_with_short_side, resize_with_specific_base, force_convert_image_to_bgr
+from Utils.GeometryUtils import resize_with_short_side, resize_with_specific_base, force_convert_image_to_bgr, \
+    resize_with_long_side, center_pad_image_with_specific_base
 from Utils.InferenceHelpers import TritonInferenceHelper
 
 
@@ -20,10 +20,12 @@ class TextDetectOperator(DummyAlgorithmWithModel, ABC):
 class GeneralDBDetect(TextDetectOperator):
     """
     避免DB名称与数据库重叠，所以起名DBDetect
+    notes:
+    v1.0.20210413:增加对于纵横比离谱的图像的适配。避免显存爆炸
     """
 
     name = '自然场景下的基于DB的文本检测'
-    __version__ = 'v1.0.20210316'
+    __version__ = 'v1.0.20210413'
 
     def __init__(self, _inference_helper, _is_test, _threshold=0.3, _bbox_scale_ratio=1.5, _shortest_length=5):
         super().__init__(_inference_helper, _is_test)
@@ -60,13 +62,35 @@ class GeneralDBDetect(TextDetectOperator):
             'locations': [],
         }
         h, w = _image.shape[:2]
-        resized_image = resize_with_specific_base(resize_with_short_side(_image, max(736, min(h, w))), 32, 32)
-        candidate_image = force_convert_image_to_bgr(resized_image)
+        aspect_ratio = max(h, w) / min(h, w)
+        bgr_image = force_convert_image_to_bgr(_image)
+        need_crop = False
+        left_pad, top_pad = 0, 0
+        if aspect_ratio < 3:
+            resized_image = resize_with_specific_base(resize_with_short_side(bgr_image, max(736, min(h, w))), 32, 32)
+            candidate_image = resized_image
+        else:
+            # 目前测试的最严重的长宽比为30：1
+            resized_image = resize_with_long_side(bgr_image, 736)
+            candidate_image, (left_pad, top_pad) = center_pad_image_with_specific_base(
+                resized_image, 736, 736, _output_pad_ratio=True
+            )
+            need_crop = True
         if isinstance(self.inference_helper, TritonInferenceHelper):
             result = self.inference_helper.infer(_need_tensor_check=False, INPUT__0=candidate_image.astype(np.float32))
             score_map = result['OUTPUT__0']
         else:
             raise NotImplementedError(f"{self.inference_helper.type_name} helper for db not implement")
+        if need_crop:
+            resized_h, resized_w = resized_image.shape[:2]
+            candidate_h, candidate_w = candidate_image.shape[:2]
+            start_x = 0
+            start_y = 0
+            if left_pad != 0:
+                start_x = int(left_pad * candidate_w)
+            if top_pad != 0:
+                start_y = int(top_pad * candidate_h)
+            score_map = score_map[..., start_y:start_y + resized_h, start_x:start_x + resized_w]
         boxes, scores = db_post_process(score_map, self.threshold, self.bbox_scale_ratio, self.shortest_length)
         for m_box, m_score in zip(boxes, scores):
             to_return_result['locations'].append({
@@ -78,6 +102,7 @@ class GeneralDBDetect(TextDetectOperator):
 
 if __name__ == '__main__':
     from argparse import ArgumentParser
+    import cv2
     from Utils.AnnotationTools import draw_rotated_bbox
 
     ag = ArgumentParser('Text Detect Example')
