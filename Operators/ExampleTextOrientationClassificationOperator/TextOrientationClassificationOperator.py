@@ -11,7 +11,7 @@ from Utils.InferenceHelpers import TritonInferenceHelper
 
 class TextImageOrientation(Enum):
     """
-    文本朝向四个枚举类
+    文本朝向四个枚举类，顺时针
     """
     ORIENTATION_0: int = 0
     ORIENTATION_90: int = 1
@@ -70,10 +70,10 @@ class GeneralTextOrientationOperator(TextOrientationOperator):
             resized_w = target_w
         else:
             resized_w = int(math.ceil(target_h * aspect_ratio))
-        resized_image = cv2.resize(img, (resized_w, target_h))
-        padded_image = np.zeros((target_h, target_w, 3), dtype=np.float32)
-        padded_image[:, 0:resized_w, ...] = resized_image
-        candidate_image = force_convert_image_to_bgr(padded_image)
+        resized_image = cv2.resize(_image, (resized_w, target_h))
+        bgr_image = force_convert_image_to_bgr(resized_image)
+        candidate_image = np.zeros((target_h, target_w, 3), dtype=np.float32)
+        candidate_image[:, 0:resized_w, ...] = bgr_image
         if isinstance(self.inference_helper, TritonInferenceHelper):
             result = self.inference_helper.infer(_need_tensor_check=False, INPUT__0=candidate_image.astype(np.float32))
             classification = result['OUTPUT__0'].squeeze()
