@@ -81,7 +81,7 @@
    > 如果一切正常则会得到文本识别的结果
    >
    > ```json
-   > {'probability': [0.9982603,
+   > {"probability": [0.9982603,
    >                  0.9938134,
    >                  0.99923086,
    >                  0.999629,
@@ -90,7 +90,7 @@
    >                  0.95337,
    >                  0.9981487,
    >                  0.9937138],
-   >  'text': '口田日MWOIUn'}
+   >  "text": "口田日MWOIUn"}
    > 
    > ```
 
@@ -99,7 +99,7 @@
    > 如果一切正常则会得到文本方向识别结果
    >
    > ```json
-   > {'orientation': <TextImageOrientation.ORIENTATION_180: 2>}
+   > {"orientation": <TextImageOrientation.ORIENTATION_180: 2>}
    > ```
 
 ## 代码配置
@@ -172,7 +172,7 @@
 >
 > ![image-20210413175830641](./QuickStartImages/apifox接口文档页面.png)
 
-点击运行进行接口测试（需要自行配置环境），并将`image_url`填为：http://www.chaoda.com/upload/201907/1563411797188792.jpg，运行接口（如果前几次需要多等待下，triton需要预热，后面就正常速度），得到如下json：
+点击运行进行接口测试（需要自行配置环境），并将`image_url`填为：http://www.chaoda.com/upload/201907/1563411797188792.jpg ,运行接口（如果前几次需要多等待下，triton需要预热，后面就正常速度），得到如下json：
 
 ```json
 {
