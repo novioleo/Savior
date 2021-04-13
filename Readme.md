@@ -70,28 +70,9 @@
 > 但是考虑到绝大部分使用此框架的人，不会使用cpu的推理版本，所以这里就不放出来了。如果有需要，可以提issue。
 >
 
-## 简单使用教程
+## 文档
 
-1. 克隆项目`git clone https://github.com/novioleo/Savior.git`到本地。或者下载release下面的source包。
-2. 启动[rabbitmq](https://hub.docker.com/_/rabbitmq)，推荐使用docker启动：`docker run --restart=always -d --hostname celery-broker --name celery-broker -p5672:5672 -p15672:15672 -e RABBITMQ_DEFAULT_USER=guest -e RABBITMQ_DEFAULT_PASS=guest rabbitmq:3-management`
-3. 启动[triton](https://github.com/triton-inference-server/server)，推荐使用docker（需要安装[nvidia-docker](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker)）启动：`docker run --gpus=all --name=triton-server -p8000:8000 -p8001:8001 -v/path/to/your/model/repo/path:/models nvcr.io/nvidia/tritonserver:20.12-py3 tritonserver --model-repository=/models`，其中`/path/to/your/model/repo/path`是网盘中triton文件夹下载的所在文件夹。
-4. 修改项目配置，进入Savior文件夹中，进入Deployment包中，复制`server_config.py.template`并重命名为`server_config.py`，修改里面triton、rabbitmq的配置。
-5. 配置python与安装依赖，通过控制台进入Savior文件夹中，创建环境：`conda create -n SaviorEnv python=3.8`，激活环境`source activate SaviorEnv`，安装依赖：`python -m pip install nvidia-pyindex==1.0.5 && python -m pip install -r requirements.txt`
-6. 启动ConsumerWorker，通过控制台进入Savior文件夹中，启动worker：`celery -A Deployment.ConsumerWorker worker --loglevel=INFO`，如果一切配置正确会显示已经成功加载Task。
-7. 启动DispatchServer，通过控制台进入Savior文件夹中，启动server：`python Deployment/DispathServer.py`，启动成功会看到端口信息等。
-8. 测试接口服务，推荐使用[apifox](https://www.apifox.cn/)进行接口调用测试，可以通过post请求测试`ocr_interface/general_ocr`接口，传入参数`image_url`，发送请求（第一次运行需要等待，模型需要预热，五次之后基本上时间会稳定），会得到一个OSS的路径，如果OSS使用的是Dummy（默认），则找到`/tmp/DummyOSS-temp-directory/{bucket_name}/{path}`对应的文件。
-
-[生产级使用教程点我](./Docs/AdvancedTutorial.md)
-
-## 接口结果预览
-
-### OCR相关
-
-[自然场景下OCR](./Docs/ResultImageGallery/general_ocr接口结果展示图.webp)
-
-## 如何在自有项目下开发？
-
-移步至：[DevelopTutorial](./Docs/DevelopTutorial.md)
+[快速上手](./Docs/QuickStart.md)
 
 ## 感谢
 
