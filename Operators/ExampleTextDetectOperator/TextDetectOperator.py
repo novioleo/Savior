@@ -109,31 +109,20 @@ if __name__ == '__main__':
     ag.add_argument('-i', '--image_path', dest='image_path', type=str, required=True, help='本地图像路径')
     ag.add_argument('-u', '--triton_url', dest='triton_url', type=str, required=True, help='triton url')
     ag.add_argument('-p', '--triton_port', dest='triton_port', type=int, default=8001, help='triton grpc 端口')
+    ag.add_argument('-b', '--backbone', dest='backbone', choices=['res18', 'mbv3'], default='res18', help='DB的backbone')
     args = ag.parse_args()
     img = cv2.imread(args.image_path)
-    db_mbv3_handler = GeneralDBDetect({
+    db_handler = GeneralDBDetect({
         'name': 'triton',
-        'backbone_type': 'mbv3',
-        'triton_url': args.triton_url,
-        'triton_port': args.triton_port},
-        True, 0.3, 1.5, 5
-    )
-    db_res18_handler = GeneralDBDetect({
-        'name': 'triton',
-        'backbone_type': 'res18',
+        'backbone_type': args.backbone,
         'triton_url': args.triton_url,
         'triton_port': args.triton_port},
         True, 0.3, 5, 5
     )
-    db_mbv3_boxes = db_mbv3_handler.execute(img)['locations']
-    db_res18_boxes = db_res18_handler.execute(img)['locations']
-    db_mbv3_result_to_show = img.copy()
-    for m_box in db_mbv3_boxes:
-        draw_rotated_bbox(db_mbv3_result_to_show, m_box['box_info'], (255, 0, 0), 2)
-    cv2.imshow('db_mbv3_result_to_show', db_mbv3_result_to_show)
-    db_res18_result_to_show = img.copy()
-    for m_box in db_res18_boxes:
-        draw_rotated_bbox(db_res18_result_to_show, m_box['box_info'], (0, 0, 255), 2)
-    cv2.imshow('db_res18_result_to_show', db_res18_result_to_show)
+    db_boxes = db_handler.execute(img)['locations']
+    db_result_to_show = img.copy()
+    for m_box in db_boxes:
+        draw_rotated_bbox(db_result_to_show, m_box['box_info'], (0, 0, 255), 2)
+    cv2.imshow(f'db_{args.backbone}_result_to_show', db_result_to_show)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
