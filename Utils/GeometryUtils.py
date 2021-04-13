@@ -537,22 +537,26 @@ def get_min_area_bbox(_image, _contour, _scale_ratio=1.0):
         scaled_contour = np.array(offset.Execute(distance)).reshape(-1, 1, 2)
     else:
         scaled_contour = _contour
-    rotated_box = cv2.minAreaRect(scaled_contour)
-    if -90 <= rotated_box[2] <= -45:
-        to_rotate_degree = rotated_box[2] + 90
-        bbox_height, bbox_width = rotated_box[1]
-    else:
-        to_rotate_degree = rotated_box[2]
-        bbox_width, bbox_height = rotated_box[1]
-    # 几何信息归一化可以方便进行在缩放前的图像上进行操作
-    to_return_rotated_box = {
-        'degree': int(to_rotate_degree),
-        'center_x': rotated_box[0][0] / w,
-        'center_y': rotated_box[0][1] / h,
-        'box_height': bbox_height / h,
-        'box_width': bbox_width / w,
-    }
-    return to_return_rotated_box
+    try:
+        # 会存在contour不合法的情况下，无法计算得到最小面积矩形
+        rotated_box = cv2.minAreaRect(scaled_contour)
+        if -90 <= rotated_box[2] <= -45:
+            to_rotate_degree = rotated_box[2] + 90
+            bbox_height, bbox_width = rotated_box[1]
+        else:
+            to_rotate_degree = rotated_box[2]
+            bbox_width, bbox_height = rotated_box[1]
+        # 几何信息归一化可以方便进行在缩放前的图像上进行操作
+        to_return_rotated_box = {
+            'degree': int(to_rotate_degree),
+            'center_x': rotated_box[0][0] / w,
+            'center_y': rotated_box[0][1] / h,
+            'box_height': bbox_height / h,
+            'box_width': bbox_width / w,
+        }
+        return to_return_rotated_box
+    except Exception as e:
+        return None
 
 
 def get_rotated_box_roi_from_image(_image, _rotated_box, _scale_ratio=1.0):
