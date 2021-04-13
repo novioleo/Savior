@@ -1,2 +1,2 @@
 from Operators.ExampleTextOrientationClassificationOperator.TextOrientationClassificationOperator import \
-    GeneralTextOrientationOperator
+    GeneralTextOrientationOperator,TextImageOrientation
