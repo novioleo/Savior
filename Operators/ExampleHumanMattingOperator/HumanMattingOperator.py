@@ -12,6 +12,11 @@ class HumanMattingOperator(DummyAlgorithmWithModel, ABC):
 
 
 class HumanMattingWithUNet(HumanMattingOperator):
+
+    """
+    精度高，但是由于是直接进行的encoder decoder，在decoder阶段的跨层连接很多且很大，所以显存占用很多
+    """
+
     name = '基于u^2net的人体抠图'
     __version__ = 'v1.0.20210413'
 
