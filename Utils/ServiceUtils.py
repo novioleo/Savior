@@ -40,7 +40,8 @@ class ServiceTask:
         self.count_down = _count_down
         if self.is_mock:
             self.service_version = 'Mock Version'
-        assert self.binding_service is not None, f'{self.task_name} not bind to service'
+        if not self.is_mock:
+            assert self.binding_service is not None, f'{self.task_name} not bind to service'
         self.start_time = time.time()
         self.task = None
         self.create_task()
