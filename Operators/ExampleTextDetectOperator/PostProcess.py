@@ -31,5 +31,9 @@ def db_post_process(_predict_score, _thresh, _bbox_scale_ratio, _min_size=5):
         if min(m_box_width * w, m_box_height * h) < _min_size:
             continue
         to_return_boxes.append(m_rotated_box)
-        to_return_scores.append(np.sum(available_region) / np.sum(mask_region))
+        m_available_mask = np.zeros_like(available_region, dtype=np.uint8)
+        cv2.drawContours(m_available_mask, [m_contour,],0, 255, thickness=-1)
+        m_region_mask = cv2.bitwise_and(available_region, available_region, mask=m_available_mask)
+        m_mask_count = np.count_nonzero(m_available_mask)
+        to_return_scores.append(float(np.sum(m_region_mask) / m_mask_count))
     return to_return_boxes, to_return_scores
