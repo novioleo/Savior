@@ -22,10 +22,11 @@ class GeneralDBDetect(TextDetectOperator):
     避免DB名称与数据库重叠，所以起名DBDetect
     notes:
     v1.0.20210413:增加对于纵横比离谱的图像的适配。避免显存爆炸
+    v1.0.20210414:调整score计算方式
     """
 
     name = '自然场景下的基于DB的文本检测'
-    __version__ = 'v1.0.20210413'
+    __version__ = 'v1.0.20210414'
 
     def __init__(self, _inference_helper, _is_test, _threshold=0.3, _bbox_scale_ratio=1.5, _shortest_length=5):
         super().__init__(_inference_helper, _is_test)
