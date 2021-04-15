@@ -537,7 +537,9 @@ def get_min_area_bbox(_image, _contour, _scale_ratio=1.0):
         distance = current_polygon.area * _scale_ratio / current_polygon.length
         offset = PyclipperOffset()
         offset.AddPath(reshaped_contour, pyclipper.JT_ROUND, pyclipper.ET_CLOSEDPOLYGON)
-        scaled_contour = np.array(offset.Execute(distance)).reshape(-1, 1, 2)
+        all_paths = offset.Execute(distance)
+        max_path = max(all_paths, key=lambda x: cv2.contourArea(np.array(x)))
+        scaled_contour = np.array(max_path).reshape(-1, 1, 2)
     else:
         scaled_contour = _contour
     try:
