@@ -482,7 +482,10 @@ def center_pad_image_with_specific_base(_image, _height_base=None, _width_base=N
     """
     h, w = _image.shape[:2]
     target_h, target_w = _compute_image_specific_base(_image, _height_base, _width_base)
-    full_size_image = np.ones((target_h, target_w, _image.shape[2]), dtype=_image.dtype) * _pad_value
+    if len(_image.shape) == 3:
+        full_size_image = np.ones((target_h, target_w, _image.shape[2]), dtype=_image.dtype) * _pad_value
+    else:
+        full_size_image = np.ones((target_h, target_w), dtype=_image.dtype) * _pad_value
     left_margin = (target_w - w) // 2
     right_margin = left_margin + w
     top_margin = (target_h - h) // 2
