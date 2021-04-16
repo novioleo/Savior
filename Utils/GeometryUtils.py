@@ -497,6 +497,28 @@ def center_pad_image_with_specific_base(_image, _height_base=None, _width_base=N
         return full_size_image, (left_margin / target_w, top_margin / target_h)
 
 
+def remove_image_pad(_padded_image, _original_image, _left_margin, _top_margin):
+    """
+    移除图像的pad
+
+    Args:
+        _padded_image:  已经pad后的图像
+        _original_image:    原图
+        _left_margin:   左边界
+        _top_margin:    上边界
+
+    Returns:    移除边界后的图
+
+    """
+    padded_h, padded_w = _padded_image.shape[:2]
+    original_h, original_w = _original_image.shape[:2]
+    left_margin_pixels = int(_left_margin * padded_w)
+    top_margin_pixels = int(_top_margin * padded_h)
+    right_boundary = left_margin_pixels + original_w
+    bottom_boundary = top_margin_pixels + original_h
+    return _padded_image[top_margin_pixels:bottom_boundary, left_margin_pixels:right_boundary, ...]
+
+
 def get_cropped_image(_image, _location):
     """
     抠取图中的特定区域
