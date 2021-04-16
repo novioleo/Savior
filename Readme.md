@@ -47,6 +47,7 @@
 - [x] [SilentFaceAntiSpoofing](https://github.com/minivision-ai/Silent-Face-Anti-Spoofing)  静默人脸活体检测
 - [x] [Fair](https://github.com/dchen236/FairFace) 人脸年龄、性别、种族识别
 - [x] [HumanMattingWithU^2Net](https://github.com/xuebinqin/U-2-Net) 人体抠图 
+- [x] HumanMattingWithBiSe 人体抠图 
 
 ### OCR相关
 - [x] [DB](https://github.com/WenmuZhou/PytorchOCR) 文本检测
