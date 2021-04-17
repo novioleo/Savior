@@ -1,1 +1,1 @@
-from Operators.ExampleHumanMattingOperator.HumanMattingOperator import HumanMattingWithUNet
+from Operators.ExampleHumanMattingOperator.HumanMattingOperator import HumanMattingWithUNet, HumanMattingWithBiSeNet
