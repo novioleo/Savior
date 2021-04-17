@@ -242,7 +242,49 @@ recognize_result = text_recognize_op.execute(rotated_image)
 
 ### 算法Op开发
 
+所有的算法Op都需要继承`DummyAlgorithm`类。对于需要进行模型推理的则需要继承`DummyAlgorithmWithModel`。
+
+在常见的算法算子的开发过程中会经常出现大量重复的情况。例如有很多目标检测的算子，但是都是用的`YOLO`，这个时候可以先实现或者先找到`YOLO`的公共部分并抽象成基类，然后再实现对应算法的子类，尽可能避免重复开发。
+
+例如可以像下面一样：
+
+```python
+class YOLO(DummyAlgorithmWithModel):
+    def __init__(self):
+        pass
+      
+class PedestrianDetectWithYOLO(YOLO):
+    pass
+  
+class SurveillancePedestrianDetectWithYOLO(PedestriainDetectWithYOLO):
+    pass
+  
+class GeneralPedestrianDetectWithYOLO(PedestriainDetectWithYOLO):
+    pass
+```
+
+可以在不同的基类中增加相应的公共函数，或者公共对象，减少重复性开发。更新详细案例可以参考所有Example算子的明细。
+
 ### 非算法Op开发
+
+所有非算法Op都需要继承`DummyOperator`类，常见的Op有数据库操作Op，数据下载与上传Op，数据预处理Op（例如将视频提取关键帧）。对于会有TCP长连接的Op，能复用就尽可能复用，减少资源消耗。
 
 ## 异常排查
 
+### Op异常排查
+
+每个Op在实现的时候，都需要进行基本的“单元测试”，即在Op中编写主函数，能够完成运行demo。故，如果Op发生了错误，可以直接在主函数中传入相应的值，用于复现Bug，然后通过Debug模式进行问题排查及解决问题。
+
+> 有些内存泄漏的问题，在单个Op中无法复现，在Celery中运行的时候会出现，例如在没有安装opencv-python-contritbute-headless的情况下，运行cvtColor多次后会出现内存泄漏，安装后基本解决此问题。
+>
+> 如遇这种情况，请在Issue中提出，并附上详细说明。
+
+### Service异常排查
+
+Service在实现的时候会实现两个东西，一个是TaskService的类，另一个就是Celery的task即真实的service。可以直接在Service的代码中添加主函数，然后调用函数进行测试，这样就不会经过Celery启动了。如果有些问题很难通过编写主函数的方式排查，那么就需要参考[Celery Debug](https://docs.celeryproject.org/en/stable/userguide/debugging.html)官方教程进行调试错误。
+
+> 当使用pdb启动之后，并且获取了对应的端口之后，可以使用IDE自带的Debug工具进行远程调试。如果启动的worker是在本地的话，也可以直接通过attach process的方式进行调试。
+
+### Dispatch异常排查
+
+DispatchServer的生产环境的启动模式是基于gunicorn进行启动，如果要进行问题排查，可以直接使用DispatchServer中的主函数，通过uvicorn以Debug模式启动，进行断点排查。
