@@ -31,5 +31,5 @@ async def dummy_interface(
     final_result = await wait_and_compose_all_task_result(task1, task2, task3, task4)
     to_return_result = dict()
     to_return_result['result'] = final_result
-    to_return_result['dag'] = dag
+    to_return_result['dag'] = dag.dump()
     return ORJSONResponse(to_return_result)
