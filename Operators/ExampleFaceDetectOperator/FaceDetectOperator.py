@@ -58,6 +58,8 @@ class GeneralUltraLightFaceDetect(FaceDetectOperator):
             _output_pad_ratio=True
         )
         resized_image = cv2.resize(_image, self.candidate_image_size)
+        resized_shape = resized_image.shape[:2]
+        resize_h, resize_w = resized_shape
         candidate_image = force_convert_image_to_bgr(resized_image)
         if isinstance(self.inference_helper, TritonInferenceHelper):
             rgb_image = cv2.cvtColor(candidate_image, cv2.COLOR_BGR2RGB)
@@ -74,7 +76,8 @@ class GeneralUltraLightFaceDetect(FaceDetectOperator):
             return to_return_result
         filter_scores = box_score_map[available_box]
         filtered_box = box[available_box, :]
-        final_box_index = nms(filtered_box, filter_scores, _nms_threshold=self.iou_threshold)
+        filtered_box_without_normalization = filtered_box * (resize_w, resize_h, resize_w, resize_h)
+        final_box_index = nms(filtered_box_without_normalization, filter_scores, _nms_threshold=self.iou_threshold)
         final_boxes = filtered_box[final_box_index]
         final_scores = filter_scores[final_box_index]
         for m_box, m_score in zip(final_boxes, final_scores):
@@ -131,6 +134,7 @@ class GeneralRetinaFaceDetect(FaceDetectOperator):
         }
         resized_image = resize_with_long_side(_image, 512)
         resized_shape = resized_image.shape[:2]
+        resize_h, resize_w = resized_shape
         padded_image, (width_pad_ratio, height_pad_ratio) = center_pad_image_with_specific_base(
             resized_image,
             _width_base=512,
@@ -157,7 +161,8 @@ class GeneralRetinaFaceDetect(FaceDetectOperator):
         filtered_box = all_boxes[candidate_box_index]
         if len(filter_scores) == 0:
             return to_return_result
-        final_box_index = nms(filtered_box, filter_scores, _nms_threshold=self.iou_threshold)
+        filtered_box_without_normalization = filtered_box * (resize_w, resize_h, resize_w, resize_h)
+        final_box_index = nms(filtered_box_without_normalization, filter_scores, _nms_threshold=self.iou_threshold)
         final_boxes = filtered_box[final_box_index]
         final_scores = filter_scores[final_box_index]
         for m_box, m_score in zip(final_boxes, final_scores):
@@ -189,7 +194,6 @@ if __name__ == '__main__':
     ag.add_argument('-p', '--triton_port', dest='triton_port', type=int, default=8001, help='triton grpc 端口')
     args = ag.parse_args()
     img = cv2.imread(args.image_path)
-    img = cv2.resize(img, (0, 0), fx=0.2, fy=0.2)
     ultra_light_face_detect_handler = GeneralUltraLightFaceDetect({
         'name': 'triton',
         'triton_url': args.triton_url,
