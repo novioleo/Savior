@@ -205,3 +205,24 @@ class PreviousTaskNotFinishException(GeneralException):
     前置任务未完成异常
     """
     MIRROR_CODE = 9
+
+
+class VectorSearchException(CustomException):
+    """
+    图像搜索的异常
+    """
+    MAJOR_CODE = 5
+
+
+class MilvusRuntimeException(CustomException):
+    """
+    Milvus异常
+    """
+    MIRROR_CODE = 10
+
+
+class DatabaseNotExist(VectorSearchException):
+    """
+    数据库不存在
+    """
+    MIRROR_CODE = 1
