@@ -179,7 +179,7 @@ def nms(_rectangles, _scores, _nms_threshold):
     非极大值抑制
     
     Args:
-        _rectangles:    所有bbox
+        _rectangles:    所有bbox（非归一化的box）
         _scores:    所有bbox的score
         _nms_threshold: nms的阈值
 
