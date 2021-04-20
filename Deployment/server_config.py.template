@@ -93,3 +93,7 @@ OCR_TRITON_URL = 'localhost'
 OCR_TRITON_PORT = 8001
 FACE_TRITON_URL = 'localhost'
 FACE_TRITON_PORT = 8001
+
+# Milvus服务配置【不需要请留None】
+MILVUS_URL = None
+MILVUS_PORT = 19530
