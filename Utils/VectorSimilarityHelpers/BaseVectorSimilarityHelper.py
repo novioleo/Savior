@@ -29,6 +29,9 @@ class BaseVectorSimilarityHelper:
     def insert(self, _database_name, _to_insert_vector):
         pass
 
+    def insert_with_id(self,_database_name,_to_insert_vector,_to_insert_ids, _partition_tag=None, _params=None):
+        pass
+
     def delete(self, _database_name, _to_delete_vector_id):
         pass
 
