@@ -105,6 +105,7 @@ if __name__ == '__main__':
     from argparse import ArgumentParser
     import cv2
     from Utils.AnnotationTools import draw_rotated_bbox
+    from Utils.GeometryUtils import get_rotated_box_roi_from_image
 
     ag = ArgumentParser('Text Detect Example')
     ag.add_argument('-i', '--image_path', dest='image_path', type=str, required=True, help='本地图像路径')
@@ -122,8 +123,10 @@ if __name__ == '__main__':
     )
     db_boxes = db_handler.execute(img)['locations']
     db_result_to_show = img.copy()
-    for m_box in db_boxes:
+    for m_box_index, m_box in enumerate(db_boxes, 1):
         draw_rotated_bbox(db_result_to_show, m_box['box_info'], (0, 0, 255), 2)
+        m_roi_image = get_rotated_box_roi_from_image(img, _rotated_box=m_box['box_info'])
+        cv2.imshow(f'roi No.{m_box_index}', m_roi_image)
     cv2.imshow(f'db_{args.backbone}_result_to_show', db_result_to_show)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
