@@ -39,34 +39,31 @@
 
 ## 框架中已集成的算法
 
-> 更多开源模型欢迎在issue中补充，也十分欢迎您的PR。
+> 🌈更多算子或服务欢迎在issue中补充，也十分欢迎您的PR。
 
-### 人脸相关
+| 名称（与模型文件夹同名）                                     | 类别             | 是否实现 | 备注                                                         |
+| ------------------------------------------------------------ | ---------------- | -------- | ------------------------------------------------------------ |
+| [UltraFaceDetect](https://github.com/Linzaer/Ultra-Light-Fast-Generic-Face-Detector-1MB) | 人脸检测         | ✅        | 模型小，速度快，精度满足绝大部分正常场景                     |
+| [RetinaFaceDetect](https://github.com/deepinsight/insightface) | 人脸检测         | ✅        | 模型大，速度较快，对于小人脸和刁钻角度的人脸有更好的效果     |
+| [FaceParsing](https://github.com/zllrunning/face-parsing.PyTorch) | 人脸语义分区     | ✅        | 基于CelebHQ训练的BiSeV1，对于大部分人脸的分区准确率高，准实时级别。 |
+| [Landmark2D](https://github.com/deepinsight/insightface)     | 人脸对齐         | ✅        | 回归106个点坐标，对于倾斜角度超过正负60度，都无法准确识别    |
+| [FaceEmbedding](https://github.com/ZhaoJ9014/face.evoLVe.PyTorch) | 人脸特征提取     | ✅        | 基于私有数据集训练的亚洲人脸特征向量提取，1：1000的准确率在99%+ |
+| [SilentFaceAntiSpoofing](https://github.com/minivision-ai/Silent-Face-Anti-Spoofing) | 静默人脸活体检测 | ✅        | V1的效果差强人意，V2的效果还行。                             |
+| [Fair](https://github.com/dchen236/FairFace)                 | 人脸属性         | ✅        | 年龄范围、性别、种族                                         |
+| [HumanMattingWithU^2Net](https://github.com/xuebinqin/U-2-Net) | 人体抠图         | ✅        | 基于U^2Net的SOD（主体目标）人体抠图，对于新闻场景效果好。但是残差层很多，占用显存很大 |
+| HumanMattingWithBiSe                                         | 人体抠图         | ✅        | 基于BiSeV1的segment的结果，增加小号的encoder+decoder进行边缘refine的人体抠图。占用显存小，且细节保留更多。 |
+| [DB](https://github.com/WenmuZhou/PytorchOCR)                | 文本检测         | ✅        | 有两个backbone的版本，分别是res18和mbv3。其中res18的模型准确率相较mbv3高差不多10个点。如果不是速度和容量有需求，推荐res18的模型 |
+| [CRNN](https://github.com/WenmuZhou/PytorchOCR)              | 文本识别         | ✅        | 有两个backbone的版本，分别是res34和mbv3。其中res34的模型准确率相较mbv3高差不多5个点。如果不是速度和容量有需求，推荐res34的模型。 |
+| 文档图像方向矫正                                             | 图像预处理       | ✅        | 提取线条，找到所有线条的方向，找到其中的众数，作为文本方向   |
+| [TextOrientationClassification](https://github.com/frotms/PaddleOCR2Pytorch) | 文本行方向回归   | ✅        | 对于横向的文本进行方向分类，分类出正向和180°                 |
+| NRIQA                                                        | IQA              | ✅        | 一些基本的无参考的IQA算法                                    |
+| [网页、杂志等数据版式分析](https://github.com/Layout-Parser/layout-parser) | 版式分析         | ❌        |                                                              |
+| [文章数据版式分析](https://github.com/Layout-Parser/layout-parser) | 版式分析         | ❌        |                                                              |
+| [PICK](https://github.com/wenwenyu/PICK-pytorch)             | 关键信息提取     | ❌        |                                                              |
 
-- [x] [UltraFaceDetect](https://github.com/Linzaer/Ultra-Light-Fast-Generic-Face-Detector-1MB) 人脸检测
-- [x] [RetinaFaceDetect](https://github.com/deepinsight/insightface) 人脸检测
-- [x] [FaceParsing](https://github.com/zllrunning/face-parsing.PyTorch) 人脸语义分区
-- [x] [Landmark2D](https://github.com/deepinsight/insightface)  人脸landmark检测
-- [x] [FaceEmbedding](https://github.com/ZhaoJ9014/face.evoLVe.PyTorch) 人脸特征向量提取
-- [x] [SilentFaceAntiSpoofing](https://github.com/minivision-ai/Silent-Face-Anti-Spoofing)  静默人脸活体检测
-- [x] [Fair](https://github.com/dchen236/FairFace) 人脸年龄、性别、种族识别
-- [x] [HumanMattingWithU^2Net](https://github.com/xuebinqin/U-2-Net) 人体抠图 
-- [x] HumanMattingWithBiSe 人体抠图 
+> 目前已经组装集成了一些常用的Service，可以直接在interface层调用。
 
-### OCR相关
-- [x] [DB](https://github.com/WenmuZhou/PytorchOCR) 文本检测
-- [x] [CRNN](https://github.com/WenmuZhou/PytorchOCR)   文本识别
-- [ ] [网页、杂志等数据版式分析](https://github.com/Layout-Parser/layout-parser) 版式分析
-- [ ] [文章数据版式分析](https://github.com/Layout-Parser/layout-parser) 版式分析
-- [x] 文档图像方向矫正(deskew)
-- [x] [文本行方向回归](https://github.com/WenmuZhou/PytorchOCR) 文本行方向检测
-
-### 图像搜索
-
-### 通用
-- [x] NRIQA
-
-官方已适配模型下载地址（不定时更新）：
+已适配模型下载地址（不定时更新）：
 
 - [百度网盘](https://pan.baidu.com/s/1DvSQMM76gGAltPLma6w1wQ)  密码: sg11
 
