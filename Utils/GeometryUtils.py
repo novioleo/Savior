@@ -226,6 +226,10 @@ def rotate_points(_points, _degree=0, _center=(0, 0)):
     """
     逆时针绕着一个点旋转点
 
+    Notes:
+
+    points是非归一化的值
+
     Args:
         _points:    需要旋转的点
         _degree:    角度
