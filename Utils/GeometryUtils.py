@@ -606,21 +606,16 @@ def get_rotated_box_roi_from_image(_image, _rotated_box, _scale_ratio=1.0):
 
     """
     h, w = _image.shape[:2]
-    to_rotate_degree = _rotated_box['degree']
-    box_center = (_rotated_box['center_x'] * w, _rotated_box['center_y'] * h)
-    half_box_height, half_box_width = \
-        _rotated_box['box_height'] * _scale_ratio / 2, _rotated_box['box_width'] * _scale_ratio / 2
-    if to_rotate_degree != 0:
-        rotated_image, _ = rotate_degree_img(_image, to_rotate_degree, box_center, _with_expand=False)
-    else:
-        rotated_image = _image.copy()
-    to_crop_location = {
-        'top_left_x': _rotated_box['center_x'] - half_box_width,
-        'top_left_y': _rotated_box['center_y'] - half_box_height,
-        'bottom_right_x': _rotated_box['center_x'] + half_box_width,
-        'bottom_right_y': _rotated_box['center_y'] + half_box_height,
-    }
-    cropped_image = get_cropped_image(rotated_image, to_crop_location)
+    rotated_points = get_coordinates_of_rotated_box(_image, _rotated_box)
+    target_h = int(_rotated_box['box_height'] * _scale_ratio * h)
+    target_w = int(_rotated_box['box_width'] * _scale_ratio * w)
+    target_points = np.array([
+        [0, 0],
+        [target_w, 0],
+        [target_w, target_h],
+    ], dtype=np.float32)
+    warp_matrix = cv2.getAffineTransform(rotated_points.astype(np.float32)[:3], target_points)
+    cropped_image = cv2.warpAffine(_image, warp_matrix, (target_w, target_h))
     return cropped_image
 
 
