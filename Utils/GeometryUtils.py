@@ -643,8 +643,7 @@ def get_coordinates_of_rotated_box(_image, _rotated_box):
         [center_x - half_box_width, center_y + half_box_height]
     ])
     rotated_points = np.clip(rotate_points(raw_points, _rotated_box['degree'], (center_x, center_y)), a_min=0, a_max=1)
-    rotated_points[:, 0] *= w
-    rotated_points[:, 1] *= h
+    rotated_points *= (w,h)
     return rotated_points.astype(np.int32)
 
 
