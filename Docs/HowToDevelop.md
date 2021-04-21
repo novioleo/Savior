@@ -242,6 +242,8 @@ recognize_result = text_recognize_op.execute(rotated_image)
 
 ### 算法Op开发
 
+:star2:**为了保证更好的使用Triton，请参考[Triton进阶教程](./Triton进阶使用.md)**:star2:
+
 所有的算法Op都需要继承`DummyAlgorithm`类。对于需要进行模型推理的则需要继承`DummyAlgorithmWithModel`。
 
 在常见的算法算子的开发过程中会经常出现大量重复的情况。例如有很多目标检测的算子，但是都是用的`YOLO`，这个时候可以先实现或者先找到`YOLO`的公共部分并抽象成基类，然后再实现对应算法的子类，尽可能避免重复开发。
@@ -264,6 +266,38 @@ class GeneralPedestrianDetectWithYOLO(PedestriainDetectWithYOLO):
 ```
 
 可以在不同的基类中增加相应的公共函数，或者公共对象，减少重复性开发。更新详细案例可以参考所有Example算子的明细。
+
+#### 如何使用自己的模型
+
+很多时候大家都是在现有模型的基础上进行finetune得到新的模型参数，模型的前后处理基本可以保持一致，这个时候只需要将现有模型替换此前的模型或者增加新的模型。
+
+> 如果对性能要求不是很极致，推荐使用TorchScript模型。如果对性能有要求，可以后面将将所有TorchScript模型使用torch2trt代码转换为TensorRT。
+
+```python
+# 引入torch,numpy相关依赖
+import torch.jit
+import torch
+import numpy as np
+# 假设待转换模型网络为net
+device = torch.device('cuda:0')
+net = VGGNet(classes=1000)
+net.to(device)
+net.eval()
+# 配置进入网络的tensor的shape（BCHW格式），实际使用的类型，以及对应的device
+to_input_tensor = torch.zeros((1,3,224,224),dtype=torch.float32,device=device)
+traced_model = torch.jit.trace(net,(to_input_tensor,))
+torch.jit.save(traced_model,'vgg.pt')
+# 测试新老模型的diff
+traced_model = torch.jit.load('vgg.pt',map_location=device)
+with torch.no_grad():
+    origin_result = net(to_input_tensor).cpu().numpy().squeeze()
+    traced_model_result = traced_model(to_input_tensor).cpu().numpy().squeeze()
+    print('diff',np.linalg.norm(origin_result-traced_model_result)/len(origin_result))
+```
+
+>  在$diff<1e^{-5}$的情况下，我们才认为当前模型没有损失太大精度。否则需要提前排查模型的问题。
+
+获得pt模型之后参考[triton模型配置](https://github.com/triton-inference-server/server/blob/master/docs/model_configuration.md)将其放置到triton的模型仓库文件夹中。
 
 ### 非算法Op开发
 
@@ -288,3 +322,4 @@ Service在实现的时候会实现两个东西，一个是TaskService的类，�
 ### Dispatch异常排查
 
 DispatchServer的生产环境的启动模式是基于gunicorn进行启动，如果要进行问题排查，可以直接使用DispatchServer中的主函数，通过uvicorn以Debug模式启动，进行断点排查。
+
