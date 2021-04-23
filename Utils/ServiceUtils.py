@@ -1,12 +1,41 @@
 import asyncio
 import time
 from collections import OrderedDict
+
 from celery import exceptions as celery_exceptions
-import traceback as tb
-from Utils.DAG import DAG
+
 from Deployment.server_config import SUBTASK_EXECUTE_TIME_LIMIT_SECONDS, TASK_QUEUE
-from Utils.Exceptions import ConsumerAlgorithmTimeoutException, ConsumerAlgorithmUncatchException
+from Utils.DAG import DAG
+from Utils.Exceptions import CustomException, \
+    RetryExceedLimitException, DAGAbortException
 from Utils.misc import get_uuid_name
+
+
+class ServiceResult:
+    def __init__(self, _version, _mock_result):
+        self.service_version = _version
+        self.start_time = None
+        self.cost_time = 0
+        self.return_code = 0
+        self.return_message = 'success'
+        self.service_result = _mock_result
+
+    def __enter__(self):
+        self.start_time = time.time()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.cost_time = int(time.time() - self.start_time)
+
+    def finish(self, _result):
+        for m_key, m_value in _result.items():
+            self.service_result[m_key] = m_value
+
+    def fail(self, _exception):
+        if isinstance(_exception, CustomException):
+            self.return_code, self.return_message = _exception.format_exception()
+        else:
+            self.return_code, self.return_message = -1, str(_exception)
 
 
 class ServiceTask:
@@ -20,15 +49,15 @@ class ServiceTask:
 
     binding_service = None
 
-    def __init__(self, _count_down=0, _task_name=None, _is_mock=False, _dag: DAG = None):
+    def __init__(self, _dag: DAG, _count_down=0, _task_name=None, _is_mock=False, _retry_count=5):
         """
         初始化task
 
         Args:
+            _dag:           workflow的dag
             _count_down:    启动时间（秒），启动时间如果非0，则会放入后台等待设定的秒数后进行，不会回传结果。
             _task_name:     任务名称
             _is_mock:       是否是mock状态
-            _dag:           workflow的dag
         """
         self.filled_field = dict()
         if _task_name is not None:
@@ -46,27 +75,23 @@ class ServiceTask:
         self.task = None
         self.create_task()
         self.dag = _dag
+        self.retry_count = _retry_count
 
     def create_task(self):
         if self.filled_field.keys() == self.require_field:
             self.task = asyncio.create_task(self.execute())
-            if self.dag is not None:
-                self.dag.create_task_node(self)
+            self.dag.create_task_node(self)
 
     def __await__(self):
         assert self.task is not None, 'task not setup success'
-        return self.task.__await__()
-
-    def _decorate_result(self, _result_dict, _time_cost):
-        to_return_decorated_result = OrderedDict()
-        to_return_decorated_result['version'] = self.service_version
-        # 记录具体启动时间
-        to_return_decorated_result['start_time'] = int(self.start_time * 1000)
-        to_return_decorated_result['detail'] = self.mock_result.copy()
-        to_return_decorated_result['time_cost'] = '%0.4f ms' % (_time_cost * 1000)
-        for m_key, m_value in _result_dict.items():
-            to_return_decorated_result['detail'][m_key] = m_value
-        return to_return_decorated_result
+        task_result = yield from self.task.__await__()
+        if task_result.return_code != 0:
+            raise DAGAbortException(
+                f'service {self.service_name} cannot go on',
+                self.service_name,
+                task_result.return_message,
+            )
+        return task_result
 
     async def get_request_data(self):
         to_return_request_data = dict()
@@ -82,19 +107,17 @@ class ServiceTask:
             if isinstance(m_field_value, tuple):
                 m_task, m_task_field_name = m_field_value
                 all_dependent_task.append((m_task, m_task_field_name, m_field_name))
-                if self.dag is not None:
-                    self.dag.create_task_dependency(m_task, m_task_field_name, self, m_field_name)
+                self.dag.create_task_dependency(m_task, m_task_field_name, self, m_field_name)
             else:
                 to_return_request_data[m_field_name] = m_field_value
-                if self.dag is not None:
-                    self.dag.create_value_dependency(m_field_value, self, m_field_name)
+                self.dag.create_value_dependency(m_field_value, self, m_field_name)
         if len(all_dependent_task):
             all_dependent_task_results = await asyncio.gather(
                 *[_[0] for _ in all_dependent_task]
             )
             for m_result, (m_task, m_task_field_name, m_field_name) in zip(all_dependent_task_results,
                                                                            all_dependent_task):
-                m_value = m_result['detail'][m_task_field_name]
+                m_value = m_result.service_result[m_task_field_name]
                 m_value = m_value if not isinstance(m_value, bytes) else m_value.decode('utf-8')
                 to_return_request_data[m_field_name] = m_value
         return to_return_request_data
@@ -114,31 +137,34 @@ class ServiceTask:
         self.create_task()
 
     async def execute(self):
-        # 计算包括依赖在内的总的时间
-        start_time = time.time()
         # 如果说有task name则算子的名称按task name来定
         if self.task_name is None:
             self.task_name = self.service_name
-        if self.is_mock:
-            return self._decorate_result(self.mock_result, time.time() - start_time)
-        request_data = await self.get_request_data()
-        # 获取实际运行启动时间
-        self.start_time = time.time()
-        try:
-            celery_task = self.binding_service.apply_async(
-                kwargs=request_data,
-                countdown=self.count_down,
-                queue=TASK_QUEUE,
-            )
-            if self.count_down == 0:
-                api_result_dict = celery_task.get(propagate=True, timeout=SUBTASK_EXECUTE_TIME_LIMIT_SECONDS, )
-                if self.dag is not None:
+        with ServiceResult(self.service_version, self.mock_result) as to_return_result:
+            if self.is_mock:
+                return to_return_result
+            request_data = await self.get_request_data()
+            # 获取实际运行启动时间
+            self.start_time = time.time()
+            try:
+                celery_task = self.binding_service.apply_async(
+                    kwargs=request_data,
+                    countdown=self.count_down,
+                    queue=TASK_QUEUE,
+                )
+                if self.count_down == 0:
+                    api_result_dict = celery_task.get(propagate=True, timeout=SUBTASK_EXECUTE_TIME_LIMIT_SECONDS, )
                     self.dag.set_task_node_result(self, api_result_dict)
-                return self._decorate_result(api_result_dict, time.time() - start_time)
-        except celery_exceptions.TimeoutError as te:
-            raise ConsumerAlgorithmTimeoutException(self.service_name + ' timeout')
-        except Exception as e:
-            raise ConsumerAlgorithmUncatchException(tb.format_exc())
+                    to_return_result.finish(api_result_dict)
+            except (celery_exceptions.TimeoutError, celery_exceptions.TimeLimitExceeded) as retry_exception:
+                self.retry_count -= 1
+                if self.retry_count > 0:
+                    return await self.execute()
+                else:
+                    to_return_result.fail(RetryExceedLimitException(f'{self.service_name} retried exceed limit.'))
+            except Exception as e:
+                to_return_result.fail(e)
+            return to_return_result
 
 
 async def wait_and_compose_all_task_result(*tasks):
@@ -154,5 +180,5 @@ async def wait_and_compose_all_task_result(*tasks):
     to_return_result = OrderedDict()
     all_task_results = await asyncio.gather(*tasks)
     for m_task, m_task_result in zip(tasks, all_task_results):
-        to_return_result[m_task.task_name] = m_task_result['detail']
+        to_return_result[m_task.task_name] = m_task_result.service_result
     return to_return_result
