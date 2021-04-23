@@ -96,6 +96,8 @@ class ImageDownloadOperator(DownloadOperator):
             to_return_result['image_channel'] = image_c
             to_return_result['image'] = request_image_np
             return to_return_result
+        except requests.exceptions.ConnectionError as connect_error:
+            raise DownloadURLNotAvailableException(f'{_to_download_url} cannot reach')
         except TimeoutError as te:
             raise ImageDownloadTimeoutException(f'{_to_download_url} download timeout')
         except CustomException as ce:
