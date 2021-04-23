@@ -84,7 +84,7 @@ class TextDocumentDeskewOperator(DummyAlgorithm):
         if 0 <= mean_degree <= 90:
             target_to_rotate_angle = mean_degree - 90
         if -45 <= mean_degree < 0:
-            target_to_rotate_angle = mean_degree - 90
+            target_to_rotate_angle = mean_degree
         if -90 <= mean_degree < -45:
             target_to_rotate_angle = 90 + mean_degree
 
