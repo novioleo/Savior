@@ -4,7 +4,7 @@ class CustomException(Exception):
     MIRROR_CODE = 0
 
     def format_exception(self):
-        return '%d%02d' % (self.MAJOR_CODE, self.MIRROR_CODE), str(self)
+        return self.MAJOR_CODE * 100 + self.MIRROR_CODE, str(self)
 
 
 class AlgorithmOperatorException(CustomException):
@@ -205,6 +205,25 @@ class PreviousTaskNotFinishException(GeneralException):
     前置任务未完成异常
     """
     MIRROR_CODE = 9
+
+
+class RetryExceedLimitException(GeneralException):
+    """
+    任务重试超过限制次数
+    """
+    MIRROR_CODE = 10
+
+
+class DAGAbortException(GeneralException):
+    """
+    DAG中某个具有关联任务的service task异常，导致DAG无法正确运行
+    """
+    MIRROR_CODE = 11
+
+    def __init__(self, _exception_message, _service_name, _real_reason):
+        super().__init__(_exception_message)
+        self.real_reason = _real_reason
+        self.service_name = _service_name
 
 
 class VectorSearchException(CustomException):
