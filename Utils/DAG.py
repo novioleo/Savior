@@ -10,6 +10,13 @@ class DAG:
         self.task_nodes = dict()
         self.dependency = defaultdict(list)
         self.result = dict()
+        self.finish = False
+
+    def is_finish(self):
+        return self.finsh
+
+    def set_finish(self):
+        self.finish = True
 
     def dump(self):
         return {
