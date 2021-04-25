@@ -593,22 +593,22 @@ def get_min_area_bbox(_image, _contour, _scale_ratio=1.0):
         return None
 
 
-def get_rotated_box_roi_from_image(_image, _rotated_box, _scale_ratio=1.0):
+def get_rotated_box_roi_from_image(_image, _rotated_box, _scale_ratio=(1.0, 1.0)):
     """
     在图像中抠取一个旋转的box的roi
 
     Args:
         _image:     待抠取图像
         _rotated_box:   旋转的box
-        _scale_ratio:   缩放比例
+        _scale_ratio:   缩放比例，如果为tuple则分别为width和height的scale ratio，如果是数值的类型的，则width height的scale ratio一致
 
     Returns:    抠取的roi
 
     """
     h, w = _image.shape[:2]
-    rotated_points = get_coordinates_of_rotated_box(_image, _rotated_box)
-    target_h = int(_rotated_box['box_height'] * _scale_ratio * h)
-    target_w = int(_rotated_box['box_width'] * _scale_ratio * w)
+    rotated_points = get_coordinates_of_rotated_box(_image, _rotated_box, _scale_ratio)
+    target_h = int(_rotated_box['box_height'] * h)
+    target_w = int(_rotated_box['box_width'] * w)
     target_points = np.array([
         [0, 0],
         [target_w, 0],
@@ -619,13 +619,14 @@ def get_rotated_box_roi_from_image(_image, _rotated_box, _scale_ratio=1.0):
     return cropped_image
 
 
-def get_coordinates_of_rotated_box(_image, _rotated_box):
+def get_coordinates_of_rotated_box(_image, _rotated_box, _scale_ratio=(1.0, 1.0)):
     """
     获取旋转的矩形的对应的四个顶点坐标
 
     Args:
         _image:     对应的图像
         _rotated_box:   旋转的矩形
+        _scale_ratio:   获取bbox的尺度，如果为tuple，则分别表示width和height的scale ratio，如果是一个数字就同时表示两个
 
     Returns:    四个对应在图像中的坐标点
 
@@ -633,8 +634,12 @@ def get_coordinates_of_rotated_box(_image, _rotated_box):
     h, w = _image.shape[:2]
     center_x = _rotated_box['center_x']
     center_y = _rotated_box['center_y']
-    half_box_width = _rotated_box['box_width'] / 2
-    half_box_height = _rotated_box['box_height'] / 2
+    if isinstance(_scale_ratio, tuple):
+        width_ratio, height_ratio = _scale_ratio
+    else:
+        width_ratio, height_ratio = _scale_ratio, _scale_ratio
+    half_box_width = _rotated_box['box_width'] * width_ratio / 2
+    half_box_height = _rotated_box['box_height'] * height_ratio / 2
     raw_points = np.array([
         [center_x - half_box_width, center_y - half_box_height],
         [center_x + half_box_width, center_y - half_box_height],
