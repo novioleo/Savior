@@ -20,6 +20,15 @@ class ServiceResult:
         self.return_message = 'success'
         self.service_result = _mock_result
 
+    def get_result_info(self):
+        service_status = {
+            'cost_time(seconds)': self.cost_time,
+            'return_code': self.return_code,
+            'return_message': self.return_message,
+            'service_version': self.service_version
+        }
+        return service_status, self.service_result
+
     def __enter__(self):
         self.start_time = time.time()
         return self
