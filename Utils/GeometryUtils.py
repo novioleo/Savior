@@ -619,6 +619,36 @@ def get_rotated_box_roi_from_image(_image, _rotated_box, _scale_ratio=(1.0, 1.0)
     return cropped_image
 
 
+def replace_rotated_box_roi_to_image(_source_image, _rotated_box, _replace_image, _box_scale_ratio=(1.0, 1.0)):
+    """
+    将旋转的box的roi区域替换为特定图片
+
+    Args:
+        _source_image:  原始图像
+        _rotated_box:   原始图像上的bbox
+        _replace_image:  需要替换的图像
+        _box_scale_ratio:   box的缩放比例，如果为tuple则分别为width和height的scale ratio，
+        如果是数值的类型的，则width height的scale ratio一致
+
+    Returns:    替换后的图
+
+    """
+    h, w = _source_image.shape[:2]
+    replace_image_h, replace_image_w = _replace_image.shape[:2]
+    rotated_points = get_coordinates_of_rotated_box(_source_image, _rotated_box, _box_scale_ratio)
+    source_points = np.array([
+        [0, 0],
+        [replace_image_w, 0],
+        [replace_image_w, replace_image_h],
+    ], dtype=np.float32)
+    warp_matrix = cv2.getAffineTransform(source_points, rotated_points.astype(np.float32)[:3])
+    replaced_mask = cv2.warpAffine(np.ones_like(_replace_image, dtype=np.uint8), warp_matrix, (w, h))
+    masked_replaced_image = cv2.warpAffine(_replace_image, warp_matrix, (w, h))
+    replaced_image = _source_image.copy()
+    np.putmask(replaced_image, replaced_mask == 1, masked_replaced_image)
+    return replaced_image
+
+
 def get_coordinates_of_rotated_box(_image, _rotated_box, _scale_ratio=(1.0, 1.0)):
     """
     获取旋转的矩形的对应的四个顶点坐标
