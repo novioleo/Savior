@@ -26,10 +26,14 @@ def calculate_deviation(_angle):
 class TextDocumentDeskewOperator(DummyAlgorithm):
     """
     只支持小于45度的角度矫正，对于超过45度的，那么就不能保证文字的方向了。
+
+    经过测试，图像在90度和60度左右的时候就会将图像旋转为竖直状态。
+    如果要保证图像准确率更高，可以考虑使用一个图片方向的分类器（4分类），然后将大方向正确的图再进行deskew，基本可以解决绝大部分情况。
+    如果对图像进行deskew再进行分类也可以，但是可能效果没有前者好。
     """
 
     name = '文本文档图像方向矫正'
-    __version__ = 'v1.0.20210327'
+    __version__ = 'v1.0.20210426'
 
     def __init__(self, _is_test, _sigma=3.0, _num_peaks=20):
         super().__init__(_is_test)
