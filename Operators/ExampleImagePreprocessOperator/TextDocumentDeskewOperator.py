@@ -83,9 +83,7 @@ class TextDocumentDeskewOperator(DummyAlgorithm):
         target_to_rotate_angle = mean_degree
         if 0 <= mean_degree <= 90:
             target_to_rotate_angle = mean_degree - 90
-        if -45 <= mean_degree < 0:
-            target_to_rotate_angle = mean_degree
-        if -90 <= mean_degree < -45:
+        if -90 <= mean_degree < 0:
             target_to_rotate_angle = 90 + mean_degree
 
         rotated_image, _ = rotate_degree_img(_image, -target_to_rotate_angle)
