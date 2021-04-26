@@ -267,10 +267,8 @@ def get_expand_rotated_points(_image, _center, _rotate_degree):
         _center
     ])
     rotated_points = rotate_points(points, _rotate_degree, _center)
-    offset_x = np.min(rotated_points[:, 0])
-    offset_x = -offset_x if offset_x < 0 else 0
-    offset_y = np.min(rotated_points[:, 1])
-    offset_y = -offset_y if offset_y < 0 else 0
+    offset_x = -np.min(rotated_points[:, 0])
+    offset_y = -np.min(rotated_points[:, 1])
     new_points = rotated_points + [offset_x, offset_y]
     return new_points[:4], new_points[4]
 
