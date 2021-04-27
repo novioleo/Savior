@@ -100,21 +100,7 @@ if __name__ == '__main__':
     ag = ArgumentParser('Text Document Deskew Example')
     ag.add_argument('-i', '--image_path', dest='image_path', type=str, required=True, help='图片路径')
     args = ag.parse_args()
-    images = """/Users/novio/Downloads/WechatIMG2192.png,
-/Users/novio/Downloads/WechatIMG2070.jpeg,
-/Users/novio/Downloads/WechatIMG2025.jpeg,
-/Users/novio/Downloads/WechatIMG2024.jpeg,
-/Users/novio/Downloads/WechatIMG2023.jpeg,
-/Users/novio/Downloads/WechatIMG2022.jpeg,
-/Users/novio/Downloads/WechatIMG2020.jpeg,
-/Users/novio/Downloads/WechatIMG2019.jpeg,
-/Users/novio/Downloads/WechatIMG2018.jpeg,
-/Users/novio/Downloads/WechatIMG1934.jpeg,
-/Users/novio/Downloads/WechatIMG1933.jpeg,
-/Users/novio/Downloads/WX20210423-114553@2x.png
-""".split(',')
-    for m_index, m_image in enumerate(images):
-        img = cv2.imread(m_image.strip())
-        text_document_deskew_handler = TextDocumentDeskewOperator(True)
-        deskewed_img = text_document_deskew_handler.execute(img)
-        cv2.imwrite(f'deskewed_img{m_index}.png', deskewed_img)
+    img = cv2.imread(args.image_path)
+    text_document_deskew_handler = TextDocumentDeskewOperator(True)
+    deskewed_img = text_document_deskew_handler.execute(img)
+    cv2.imwrite('deskewed_img.png', deskewed_img)
