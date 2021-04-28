@@ -1,0 +1,108 @@
+version: "3.9"
+services:
+
+  Dispatch:
+    image: "savior:${SAVIOR_VERSION}"
+    build:
+      context: ../..
+      dockerfile: ./Scripts/Savior.Dockerfile
+    networks:
+      - savior_network
+    links:
+      - "Worker:worker"
+    depends_on:
+      Worker:
+        condition: service_started
+    ports:
+      - "${DISPATCH_PORT}:${DISPATCH_PORT}"
+    deploy:
+      restart_policy:
+        condition: on-failure
+        max_attempts: 5
+    command: gunicorn -k uvicorn.workers.UvicornWorker -b 0.0.0.0:${DISPATCH_PORT} Deployment.DispatchServer:app
+
+  Worker:
+    image: "savior:${SAVIOR_VERSION}"
+    build:
+      context: ../..
+      dockerfile: ./Scripts/Savior.Dockerfile
+    networks:
+      - savior_network
+    links:
+      - "Triton:triton"
+      - "Minio:minio"
+      - "RabbitMQ:rabbitmq"
+    depends_on:
+      RabbitMQ:
+        condition: service_healthy
+      Triton:
+        condition: service_healthy
+      Minio:
+        condition: service_healthy
+    deploy:
+      restart_policy:
+        condition: on-failure
+        max_attempts: 2
+    command: celery -A Deployment.ConsumerWorker worker --loglevel=INFO
+
+  Triton:
+    image: "nvcr.io/nvidia/tritonserver:${TRITON_VERSION}"
+    networks:
+      - savior_network
+    ports:
+      - "8001"
+      - "8000"
+      - "8002"
+    runtime: nvidia
+    command: tritonserver --model-repository=/models
+    volumes:
+      - ${TRITON_MODEL_PATH}:/models
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: ["gpu"]
+              driver: nvidia
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/v2/health/ready"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  RabbitMQ:
+    image: "rabbitmq:${RABBITMQ_VERSION}"
+    networks:
+      - savior_network
+    ports:
+      - "15672"
+      - "5672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+
+  Minio:
+    image: "minio/minio:${MINIO_VERSION}"
+    networks:
+      - savior_network
+    ports:
+      - "9000"
+    command: server /data
+    volumes:
+      - ${MINIO_DATA_PATH}:/data
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USERNAME}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+networks:
+  savior_network:
