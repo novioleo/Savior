@@ -77,6 +77,8 @@
 
 [编写自己的项目](./Docs/HowToDevelop.md)
 
+[单机部署](./Scripts/Standalone/Readme.md)
+
 [腾讯云实战(WIP)](./Docs/腾讯云部署实战.md)
 ## 感谢
 
