@@ -73,3 +73,5 @@ docker-compose的配置文件为`SaviorStandalone.env`，其中包含了组件�
 
 通过命令行进入当前文件夹，运行`docker-compose --env-file ./SaviorStandalone.env -f SaviorStandalone.yaml up`启动所有关联容器。当所有关联容器都启动完全启动后会出现DispatchServer相关信息界面。参考[快速上手教程](../../Docs/QuickStart.md)的接口请求，对本地的接口进行测试。
 
+> 注意！
+> 出来的结果中minio的地址，是不可访问的，如果要访问，需要单独部署minio。或者直接查看minio的本地存储路径。
