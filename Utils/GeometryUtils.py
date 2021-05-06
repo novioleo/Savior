@@ -212,10 +212,12 @@ def nms(_rectangles, _scores, _nms_threshold):
         height = np.maximum(0.0, intersection_bottom_y - intersection_top_y + 1)
 
         intersection = width * height
+        # 计算得到两个区域中小的那个区域的面积
+        min_areas_index = areas[score_index[1:]] < areas[max_index]
         min_areas = areas[score_index[1:]].copy()
-        min_areas_mask = areas[score_index[1:]] < areas[max_index]
-        min_areas[~min_areas_mask] = areas[max_index]
-        iou = intersection / min_areas
+        min_areas[~min_areas_index] = areas[max_index]
+        union_area = areas[max_index] + areas[score_index[1:]] - intersection
+        iou = intersection / union_area
         ids = np.where(np.logical_and(iou < _nms_threshold, min_areas != intersection))[0]
         # 算iou的时候没把第一个参考框索引考虑进来，所以这里都要+1
         score_index = score_index[ids + 1]
