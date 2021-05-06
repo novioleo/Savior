@@ -55,6 +55,7 @@
 | 文档图像方向矫正                                             | 图像预处理       | ✅        | 提取线条，找到所有线条的方向，找到其中的众数，作为文本方向   |
 | [TextOrientationClassification](https://github.com/frotms/PaddleOCR2Pytorch) | 文本行方向回归   | ✅        | 对于横向的文本进行方向分类，分类出正向和180°                 |
 | NRIQA                                                        | IQA              | ✅        | 一些基本的无参考的IQA算法                                    |
+| [QRCodeDetect](https://github.com/WeChatCV/opencv_contrib/tree/master/modules/wechat_qrcode/src/detector) | 二维码           | ✅        | 微信的基于mbv2的二维码的ssd                                  |
 | [网页、杂志等数据版式分析](https://github.com/Layout-Parser/layout-parser) | 版式分析         | ❌        |                                                              |
 | [文章数据版式分析](https://github.com/Layout-Parser/layout-parser) | 版式分析         | ❌        |                                                              |
 | [PICK](https://github.com/wenwenyu/PICK-pytorch)             | 关键信息提取     | ❌        |                                                              |
@@ -69,7 +70,6 @@
 >
 > 所有模型都是基于gpu进行转换的。其中部分模型（例如CRNN）带有RNN模块，triton在cpu的状态下没法在gpu转换的模型中正常推理，会报错。配合上专用的cpu版本即可。
 > 但是考虑到绝大部分使用此框架的人，不会使用cpu的推理版本，所以这里就不放出来了。如果有需要，可以提issue。
->
 
 ## 文档
 
