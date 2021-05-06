@@ -720,6 +720,27 @@ def force_convert_image_to_bgr(_image):
     return candidate_image
 
 
+def force_convert_image_to_gray(_image):
+    """
+    将图像转换3通道的gray，（h,w,1）
+
+    Args:
+        _image:     待转换图像
+
+    Returns:    转换后的图像
+
+    """
+
+    if len(_image.shape) == 2:
+        candidate_image = _image
+    else:
+        if _image.shape[-1] == 4:
+            candidate_image = cv2.cvtColor(_image, cv2.COLOR_BGRA2GRAY)
+        else:
+            candidate_image = cv2.cvtColor(_image, cv2.COLOR_BGRA2GRAY)
+    return candidate_image[..., None]
+
+
 def face_align(_image, _landmark, _target_shape):
     """
     人脸对齐
