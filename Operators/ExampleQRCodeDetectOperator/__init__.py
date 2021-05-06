@@ -1,0 +1,1 @@
+from Operators.ExampleQRCodeDetectOperator.QRCodeDetectOperator import QRCodeDetectWithSSD
