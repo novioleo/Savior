@@ -124,6 +124,7 @@ if __name__ == '__main__':
     ag.add_argument('-i', '--image_path', dest='image_path', type=str, required=True, help='本地图像路径')
     ag.add_argument('-u', '--triton_url', dest='triton_url', type=str, required=True, help='triton url')
     ag.add_argument('-p', '--triton_port', dest='triton_port', type=int, default=8001, help='triton grpc 端口')
+    ag.add_argument('-t', '--image_type', dest='image_type', choices=['rgba', 'rgb'], default='rgba', help='保存抠图结果的类型rgb和rgba')
     ag.add_argument('-m', '--model_type', dest='model_type', choices=['unet', 'bise'], default='bise',
                     help='matting使用的模型')
     args = ag.parse_args()
@@ -145,6 +146,19 @@ if __name__ == '__main__':
         raise Exception(f'{args.model_type} not found')
     matting_result = matting_operator.execute(img)
     alpha = np.uint8(matting_result['matting_alpha'] * 255)
-    b, g, r = cv2.split(img)
-    image_with_alpha = cv2.merge([b, g, r, alpha])
-    cv2.imwrite(f'alpha_image_with_{args.model_type}.png', image_with_alpha)
+    #抠图结果是rgba形式的
+    if args.image_type=='rgba':
+        b, g, r = cv2.split(img)
+        image_with_alpha = cv2.merge([b, g, r, alpha])
+        cv2.imwrite(f'alpha_image_with_{args.model_type}.png', image_with_alpha)
+    #抠图结果是rgb形式的
+    elif args.image_type=='rgb':
+        blurred_mask = cv2.GaussianBlur(alpha, (13, 13), 11)
+        blurred_mask = np.repeat(blurred_mask[..., None], 3, -1).astype(np.float32) / 255
+        black_background = np.zeros_like(img, dtype=np.uint8)
+        new_bgr_img = np.clip(
+            img.astype(np.float32) * blurred_mask + black_background.astype(np.float32) * (1 - blurred_mask), a_min=0,
+            a_max=255).astype(np.uint8)
+        cv2.imwrite(f'alpha_image_with_{args.model_type}.png', new_bgr_img)
+    else:
+        raise Exception(f'{args.image_type} not found')
