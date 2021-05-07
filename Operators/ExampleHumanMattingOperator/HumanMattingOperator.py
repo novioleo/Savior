@@ -156,9 +156,9 @@ if __name__ == '__main__':
         blurred_mask = cv2.GaussianBlur(alpha, (13, 13), 11)
         blurred_mask = np.repeat(blurred_mask[..., None], 3, -1).astype(np.float32) / 255
         black_background = np.zeros_like(img, dtype=np.uint8)
-        new_bgr_img = np.clip(
+        bgr_img = np.clip(
             img.astype(np.float32) * blurred_mask + black_background.astype(np.float32) * (1 - blurred_mask), a_min=0,
             a_max=255).astype(np.uint8)
-        cv2.imwrite(f'alpha_image_with_{args.model_type}.png', new_bgr_img)
+        cv2.imwrite(f'alpha_image_with_{args.model_type}.png', bgr_img)
     else:
         raise Exception(f'{args.image_type} not found')
