@@ -18,7 +18,7 @@ class ServiceResult:
         self.cost_time = 0
         self.return_code = 0
         self.return_message = 'success'
-        self.service_result = _mock_result
+        self.service_result = _mock_result.copy()
 
     def get_result_info(self):
         service_status = {
