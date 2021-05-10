@@ -168,7 +168,7 @@ def ocr_result_visualization(_image_info, _box_info_list, _text_list):
     date_string = get_date_string()
     uuid_name = get_uuid_name()
     image_path = os.path.join(date_string, uuid_name)
-    final_image_path = oss_handler.upload_image_file('result', image_path, result_image, True, 50)
+    final_image_path = oss_handler.upload_image_file('result', image_path, result_image, True, 90)
     to_return_result['bucket_name'] = 'result'
     to_return_result['path'] = final_image_path
     to_return_result['url'] = oss_handler.get_retrieve_url('result', final_image_path)
