@@ -68,8 +68,14 @@ class ImageDownloadOperator(DownloadOperator):
         """
         to_return_result = OrderedDict()
         try:
-            download_result_io = self.download_url(_to_download_url, 1024 * 2)
-            request_image = Image.open(download_result_io)
+            if _to_download_url.startswith('http'):
+                download_result_io = self.download_url(_to_download_url, 1024 * 2)
+                request_image = Image.open(download_result_io)
+            else:
+                if os.path.exists(_to_download_url):
+                    request_image = Image.open(_to_download_url)
+                else:
+                    request_image = None
             if request_image is None:
                 raise ImageFormatNotSupportException(
                     f'image:{_to_download_url} format not support,cannot decode by PILLOW')
