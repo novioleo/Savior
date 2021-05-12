@@ -2,6 +2,7 @@ import uvicorn
 from fastapi import FastAPI
 import importlib
 from Deployment.server_config import DEPLOY_VERSION, SERVER_NAME, AVAILABLE_INTERFACES
+from fastapi.routing import APIRoute
 
 app = FastAPI(title=SERVER_NAME, version=DEPLOY_VERSION)
 
