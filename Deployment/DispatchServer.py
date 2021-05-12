@@ -18,6 +18,11 @@ for m_router_package, m_path_prefix in AVAILABLE_INTERFACES:
         print(e)
         print(f'{m_router_package} not found.')
 
+print('[routes]')
+for route in app.routes:
+    if isinstance(route, APIRoute):
+        print(f'\t {route.path}')
+
 if __name__ == '__main__':
     from Deployment.server_config import DISPATCH_SERVER_PORT
 
