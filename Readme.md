@@ -56,6 +56,7 @@
 | [TextOrientationClassification](https://github.com/frotms/PaddleOCR2Pytorch) | 文本行方向回归   | ✅        | 对于横向的文本进行方向分类，分类出正向和180°                 |
 | NRIQA                                                        | IQA              | ✅        | 一些基本的无参考的IQA算法                                    |
 | [QRCodeDetect](https://github.com/WeChatCV/opencv_contrib/tree/master/modules/wechat_qrcode/src/detector) | 二维码           | ✅        | 微信的基于mbv2的二维码的ssd                                  |
+| [Captcha1Recognize](https://github.com/novioleo/MASTER-pytorch) | 文本识别         | ✅        | 针对于阅读型验证码提出简单粗暴的基于Master的端到端的文本识别 |
 | [网页、杂志等数据版式分析](https://github.com/Layout-Parser/layout-parser) | 版式分析         | ❌        |                                                              |
 | [文章数据版式分析](https://github.com/Layout-Parser/layout-parser) | 版式分析         | ❌        |                                                              |
 | [PICK](https://github.com/wenwenyu/PICK-pytorch)             | 关键信息提取     | ❌        |                                                              |
