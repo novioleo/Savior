@@ -11,6 +11,14 @@ from Utils.InferenceHelpers import TritonInferenceHelper
 class Captcha1RecognizeWithMaster(DummyAlgorithmWithModel):
     """
     基于Master对于验证码种类1进行识别
+    @cite
+    @article{Lu2021MASTER,
+      title={{MASTER}: Multi-Aspect Non-local Network for Scene Text Recognition},
+      author={Ning Lu and Wenwen Yu and Xianbiao Qi and Yihao Chen and Ping Gong and Rong Xiao and Xiang Bai},
+      journal={Pattern Recognition},
+      year={2021}
+    }
+    原始master：https://github.com/wenwenyu/MASTER-pytorch
     训练使用的master的版本：https://github.com/novioleo/MASTER-pytorch 持续更新
     """
     name = "基于Master的常用验证码种类1识别"
