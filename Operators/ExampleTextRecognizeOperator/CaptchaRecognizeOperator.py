@@ -1,5 +1,5 @@
 import os
-
+import cv2
 import numpy as np
 from scipy.special import softmax
 
@@ -27,10 +27,10 @@ class Captcha1RecognizeWithMaster(DummyAlgorithmWithModel):
     def __init__(self, _inference_config, _alphabet_config_name, _is_test):
         self.encoder_inference_helper = None
         self.decoder_inference_helper = None
-        super().__init__(_inference_config, _is_test)
-        self.target_height = 48
-        self.target_width = 160
+        self.target_height = 100
+        self.target_width = 150
         self.probability_threshold = 0.8
+        super().__init__(_inference_config, _is_test)
         alphabet_file_path = os.path.join(os.path.dirname(__file__), 'assets', _alphabet_config_name + '.txt')
         with open(alphabet_file_path, mode='r') as to_read_alphabet:
             self.keys = [m_line.strip() for m_line in to_read_alphabet]
@@ -51,11 +51,11 @@ class Captcha1RecognizeWithMaster(DummyAlgorithmWithModel):
                 'Captcha1RecognizeDecoder',
                 1
             )
-            encoder_helper.add_image_input('INPUT__0', (48, 160, 3), '识别用的图像',
+            encoder_helper.add_image_input('INPUT__0', (self.target_width, self.target_height, 3), '识别用的图像',
                                            ([127.5, 127.5, 127.5], [127.5, 127.5, 127.5]))
-            encoder_helper.add_output('OUTPUT__0', (240, 512), 'memory')
+            encoder_helper.add_output('OUTPUT__0', (-1, 512), 'memory')
             decoder_helper.add_input('INPUT__0', (-1,), '已预测的label')
-            decoder_helper.add_input('INPUT__1', (240, 512), 'memory')
+            decoder_helper.add_input('INPUT__1', (-1, 512), 'memory')
             decoder_helper.add_output('OUTPUT__0', (-1, -1), '预测的label')
             self.encoder_inference_helper = encoder_helper
             self.decoder_inference_helper = decoder_helper
@@ -63,7 +63,7 @@ class Captcha1RecognizeWithMaster(DummyAlgorithmWithModel):
             raise NotImplementedError(
                 f"{self.inference_config['name']} helper for captcha 1 recognize with master not implement")
 
-    def predict(self, _memory, _max_length, _sos_symbol, _padding_symbol):
+    def predict(self, _memory, _max_length, _sos_symbol, _eos_symbol, _padding_symbol):
         batch_size = 1
         to_return_label = np.ones((batch_size, _max_length + 2), dtype=np.int64) * _padding_symbol
         probabilities = np.ones((batch_size, _max_length + 2), dtype=np.float32)
@@ -80,6 +80,8 @@ class Captcha1RecognizeWithMaster(DummyAlgorithmWithModel):
             m_probability = softmax(m_label, axis=-1)
             m_next_word = np.argmax(m_probability, axis=-1)
             m_max_probs = np.max(m_probability, axis=-1)
+            if m_next_word[:, i] == _eos_symbol:
+                break
             to_return_label[:, i + 1] = m_next_word[:, i]
             probabilities[:, i + 1] = m_max_probs[:, i]
         return to_return_label.squeeze(0), probabilities.squeeze(0)
@@ -91,9 +93,7 @@ class Captcha1RecognizeWithMaster(DummyAlgorithmWithModel):
         }
         bgr_image = force_convert_image_to_bgr(_image)
         rgb_image = cv2.cvtColor(bgr_image, cv2.COLOR_BGR2RGB)
-        resized_image = resize_with_height(rgb_image, self.target_height)
-        candidate_image = pad_image_with_specific_base(resized_image, 0, 0,
-                                                       _width_base=self.target_width, _pad_value=0)
+        candidate_image = cv2.resize(rgb_image, (self.target_width, self.target_height))
         if isinstance(self.encoder_inference_helper, TritonInferenceHelper):
             result = self.encoder_inference_helper.infer(_need_tensor_check=False,
                                                          INPUT__0=candidate_image.astype(np.float32))
@@ -103,7 +103,7 @@ class Captcha1RecognizeWithMaster(DummyAlgorithmWithModel):
                 f"{self.encoder_inference_helper.type_name} helper for captcha 1 recognize encoder not implement")
         candidate_label_length = 10
         # sos:2 eos:1 pad:0 unk:3
-        label, label_probability = self.predict(memory, candidate_label_length, 2, 0)
+        label, label_probability = self.predict(memory, candidate_label_length, 2, 1, 0)
         total_probability = 0
         for m_label, m_probability in zip(label, label_probability):
             # 包括了unk,sos,eos,pad，所以要删除
@@ -116,7 +116,6 @@ class Captcha1RecognizeWithMaster(DummyAlgorithmWithModel):
 
 if __name__ == '__main__':
     from argparse import ArgumentParser
-    import cv2
     from pprint import pprint
 
     ag = ArgumentParser('Captcha Recognize Example')
