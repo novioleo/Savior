@@ -167,6 +167,7 @@ class ServiceTask:
                     while time.time() - start_time <= SUBTASK_EXECUTE_TIME_LIMIT_SECONDS:
                         if celery_task_async_result.ready():
                             api_result_dict = celery_task_async_result.get()
+                            break
                         else:
                             await asyncio.sleep(0.1)
                     if api_result_dict is None:
