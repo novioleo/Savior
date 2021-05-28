@@ -18,6 +18,7 @@ class TritonInferenceHelper(CustomInferenceHelper, ABC):
         np.int8.__name__: "INT8",
         np.short.__name__: "INT16",
         np.int32.__name__: "INT32",
+        np.int64.__name__: "INT64",
     }
 
     def __init__(self, _algorithm_name, _server_url, _server_port, _model_name, _model_version):
@@ -48,17 +49,20 @@ class TritonInferenceHelper(CustomInferenceHelper, ABC):
         for m_name, m_tensor_info in self.all_inputs.items():
             m_tensor = _input_tensor[m_name]
             if not (isinstance(m_tensor, np.ndarray) and m_tensor.dtype.name in self.numpy_data_type_mapper):
-                raise InferenceTensorCheckFailException(f'tensor {m_name} is available numpy array')
+                raise InferenceTensorCheckFailException(f'tensor {m_name} is unavailable numpy array')
             if _need_tensor_check:
                 check_status, check_result = m_tensor_info.tensor_check(m_tensor)
                 if not check_status:
                     raise InferenceTensorCheckFailException(check_result)
-            m_normalized_tensor = m_tensor_info.normalize(m_tensor, _tensor_format='chw').astype(m_tensor.dtype)
+            if isinstance(m_tensor_info, ImageTensorInfo):
+                m_to_input_tensor = m_tensor_info.normalize(m_tensor, _tensor_format='chw').astype(m_tensor.dtype)
+            else:
+                m_to_input_tensor = m_tensor
             m_infer_input = grpcclient.InferInput(m_name,
-                                                  m_normalized_tensor.shape,
-                                                  self.numpy_data_type_mapper[m_normalized_tensor.dtype.name]
+                                                  m_to_input_tensor.shape,
+                                                  self.numpy_data_type_mapper[m_to_input_tensor.dtype.name]
                                                   )
-            m_infer_input.set_data_from_numpy(m_normalized_tensor)
+            m_infer_input.set_data_from_numpy(m_to_input_tensor)
             inputs.append(m_infer_input)
         results = self.triton_client.infer(model_name=self.model_name,
                                            model_version=self.model_version,

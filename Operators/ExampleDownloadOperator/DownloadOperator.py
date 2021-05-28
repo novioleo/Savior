@@ -93,9 +93,11 @@ class ImageDownloadOperator(DownloadOperator):
                 # 存储原始图像
                 saved_path = _oss_helper.upload_image_file(self.bucket_name, oss_path, request_image,
                                                            _enable_compress=False)
+                target_bucket_name = self.bucket_name
             else:
                 saved_path = ''
-            to_return_result['bucket_name'] = self.bucket_name
+                target_bucket_name = ''
+            to_return_result['bucket_name'] = target_bucket_name
             to_return_result['saved_path'] = saved_path
             to_return_result['image_height'] = image_h
             to_return_result['image_width'] = image_w

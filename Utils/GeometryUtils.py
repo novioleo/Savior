@@ -469,7 +469,44 @@ def resize_with_specific_base(_image, _height_base=None, _width_base=None):
     return cv2.resize(_image, (target_w, target_h))
 
 
-def center_pad_image_with_specific_base(_image, _height_base=None, _width_base=None, _pad_value=0,
+def pad_image_with_specific_base(_image,
+                                 _left_margin, _top_margin,
+                                 _height_base=None, _width_base=None,
+                                 _pad_value=0,
+                                 _output_pad_ratio=False):
+    """
+    将图像进行pad到特定尺寸上
+
+    Args:
+        _image:     待pad的图像
+        _left_margin:   左边界比例
+        _top_margin:    上边界比例
+        _height_base:   高度的base
+        _width_base:    宽度的base
+        _pad_value:     pad的值
+        _output_pad_ratio:  是否输出pad的占比
+
+    Returns:    pad后的图像，（pad边界的占比）
+
+    """
+    h, w = _image.shape[:2]
+    target_h, target_w = _compute_image_specific_base(_image, _height_base, _width_base)
+    if len(_image.shape) == 3:
+        full_size_image = np.ones((target_h, target_w, _image.shape[2]), dtype=_image.dtype) * _pad_value
+    else:
+        full_size_image = np.ones((target_h, target_w), dtype=_image.dtype) * _pad_value
+    right_margin = _left_margin + w
+    bottom_margin = _top_margin + h
+    full_size_image[_top_margin:bottom_margin, _left_margin:right_margin, ...] = _image
+    if not _output_pad_ratio:
+        return full_size_image
+    else:
+        return full_size_image, (_left_margin / target_w, _top_margin / target_h)
+
+
+def center_pad_image_with_specific_base(_image,
+                                        _height_base=None, _width_base=None,
+                                        _pad_value=0,
                                         _output_pad_ratio=False):
     """
     将图像中心填充到特定基的倍数的高宽的图像中
@@ -486,19 +523,10 @@ def center_pad_image_with_specific_base(_image, _height_base=None, _width_base=N
     """
     h, w = _image.shape[:2]
     target_h, target_w = _compute_image_specific_base(_image, _height_base, _width_base)
-    if len(_image.shape) == 3:
-        full_size_image = np.ones((target_h, target_w, _image.shape[2]), dtype=_image.dtype) * _pad_value
-    else:
-        full_size_image = np.ones((target_h, target_w), dtype=_image.dtype) * _pad_value
     left_margin = (target_w - w) // 2
-    right_margin = left_margin + w
     top_margin = (target_h - h) // 2
-    bottom_margin = top_margin + h
-    full_size_image[top_margin:bottom_margin, left_margin:right_margin, ...] = _image
-    if not _output_pad_ratio:
-        return full_size_image
-    else:
-        return full_size_image, (left_margin / target_w, top_margin / target_h)
+    return pad_image_with_specific_base(_image, left_margin, top_margin, _height_base, _width_base, _pad_value,
+                                        _output_pad_ratio)
 
 
 def remove_image_pad(_padded_image, _original_image, _left_margin, _top_margin):

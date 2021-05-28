@@ -56,6 +56,7 @@
 | [TextOrientationClassification](https://github.com/frotms/PaddleOCR2Pytorch) | 文本行方向回归   | ✅        | 对于横向的文本进行方向分类，分类出正向和180°                 |
 | NRIQA                                                        | IQA              | ✅        | 一些基本的无参考的IQA算法                                    |
 | [QRCodeDetect](https://github.com/WeChatCV/opencv_contrib/tree/master/modules/wechat_qrcode/src/detector) | 二维码           | ✅        | 微信的基于mbv2的二维码的ssd                                  |
+| [Captcha1Recognize](https://github.com/novioleo/MASTER-pytorch) | 文本识别         | ✅        | 针对于阅读型验证码提出简单粗暴的基于Master的端到端的文本识别 |
 | [网页、杂志等数据版式分析](https://github.com/Layout-Parser/layout-parser) | 版式分析         | ❌        |                                                              |
 | [文章数据版式分析](https://github.com/Layout-Parser/layout-parser) | 版式分析         | ❌        |                                                              |
 | [PICK](https://github.com/wenwenyu/PICK-pytorch)             | 关键信息提取     | ❌        |                                                              |
@@ -80,6 +81,15 @@
 [单机部署](./Scripts/Standalone/Readme.md)
 
 [腾讯云实战(WIP)](./Docs/腾讯云部署实战.md)
+
+## FAQ
+
+> Q:如何应用到自己团队的项目上？
+>
+> A:可以将Savior理解是一个自助餐厅，要啥自己拿，根据自己的需要。Savior的核心是将需要对外提供的API服务抽象成了接口层（Dispatch）和服务层（ConsumerWorker），Dispatch主要负责业务逻辑，ConsumerWorker主要负责具体执行。为了更加提高代码重复利用率，也使得代码更加的简洁，将一些常用的功能封装成一个个Operator，诸如数据下载、文本检测、文本识别、二维码检测等。可以根据自己的需要，使用、删减、增加需要的Operator。如果团队内部已经有了调度框架或者API相关基建了，可以直接白嫖封装的算子。
+
+
+
 ## 感谢
 
 感谢各位开源项目大佬的无私奉献。
