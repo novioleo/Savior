@@ -156,13 +156,22 @@ class ServiceTask:
             # 获取实际运行启动时间
             self.start_time = time.time()
             try:
-                celery_task = self.binding_service.apply_async(
+                celery_task_async_result = self.binding_service.apply_async(
                     kwargs=request_data,
                     countdown=self.count_down,
                     queue=TASK_QUEUE,
                 )
                 if self.count_down == 0:
-                    api_result_dict = celery_task.get(propagate=True, timeout=SUBTASK_EXECUTE_TIME_LIMIT_SECONDS, )
+                    start_time = time.time()
+                    api_result_dict = None
+                    while time.time() - start_time <= SUBTASK_EXECUTE_TIME_LIMIT_SECONDS:
+                        if celery_task_async_result.ready():
+                            api_result_dict = celery_task_async_result.get()
+                        else:
+                            await asyncio.sleep(0.1)
+                    if api_result_dict is None:
+                        celery_task_async_result.revoke(terminate=True,)
+                        raise celery_exceptions.TimeoutError
                     self.dag.set_task_node_result(self, api_result_dict)
                     to_return_result.finish(api_result_dict)
             except (celery_exceptions.TimeoutError, celery_exceptions.TimeLimitExceeded) as retry_exception:
