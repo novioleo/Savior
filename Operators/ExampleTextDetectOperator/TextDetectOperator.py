@@ -127,6 +127,8 @@ if __name__ == '__main__':
         draw_rotated_bbox(db_result_to_show, m_box['box_info'], (0, 0, 255), 2)
         m_roi_image = get_rotated_box_roi_from_image(img, _rotated_box=m_box['box_info'])
         cv2.imshow(f'roi No.{m_box_index}', m_roi_image)
+        cv2.imwrite(f'roi No.{m_box_index}.png', m_roi_image)
     cv2.imshow(f'db_{args.backbone}_result_to_show', db_result_to_show)
+    cv2.imwrite(f'db_{args.backbone}_result_to_show.png', db_result_to_show)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
